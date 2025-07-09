@@ -1,11 +1,36 @@
 <?php
 <?php
-// header.php bindet config.php ein und startet die Session mit den korrekten Einstellungen.
-// Es ist wichtig, dass dies geschieht, BEVOR wir versuchen, die Session zu manipulieren oder zu zerstören.
-require_once __DIR__ . '/includes/header.php';
+// Temporäres Fehler-Reporting für die Diagnose des 500er Fehlers
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 
-// Nun, da die Session korrekt gestartet wurde (mit dem Namen aus config.php),
-// können wir sie sicher zerstören.
+// Lade Konfiguration für Session-Namen, BASE_URL etc.
+// Dies wird config.php laden, welche auch ini_set für Session-Parameter enthält.
+if (file_exists(__DIR__ . '/config.php')) {
+    require_once __DIR__ . '/config.php';
+} else {
+    // Kritischer Fehler, wenn config.php fehlt, da SESSION_NAME benötigt wird.
+    // Für den Fall der Fälle einen Default setzen, aber das sollte nicht passieren.
+    if (!defined('SESSION_NAME')) define('SESSION_NAME', 'ENDORESERVERBANKSESSID');
+    if (!defined('BASE_URL')) define('BASE_URL', '.');
+    // In einer Produktivumgebung hier eher abbrechen oder loggen.
+}
+
+// Starte die Session explizit mit dem korrekten Namen, falls noch nicht geschehen.
+// config.php sollte ini_set('session.name', SESSION_NAME) bereits aufgerufen haben.
+// session_start() muss nach allen relevanten ini_set() Aufrufen erfolgen.
+if (session_status() == PHP_SESSION_NONE) {
+    if (defined('SESSION_NAME')) { // Sicherstellen, dass config.php SESSION_NAME definiert hat
+        // Die ini_set Aufrufe für httponly, use_only_cookies, secure sind in config.php
+    } else {
+        // Fallback, falls SESSION_NAME nicht definiert (sollte nicht sein)
+        ini_set('session.name', 'ENDORESERVERBANKSESSID');
+    }
+    // Weitere Session-Optionen, die nicht in config.php stehen, könnten hier gesetzt werden,
+    // aber die wichtigsten (Name, cookie-Optionen) kommen aus config.php
+    session_start();
+}
+
 
 // 1. Alle Session-Variablen löschen
 $_SESSION = []; // oder session_unset();
@@ -32,13 +57,13 @@ session_destroy();
 // könnten hier Caching-Header gesendet werden.
 // Dies ist oft nicht zwingend nötig, wenn der Logout-Prozess serverseitig robust ist,
 // aber kann in manchen Fällen helfen.
-header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
-header("Cache-Control: post-check=0, pre-check=0", false);
-header("Pragma: no-cache");
-header("Expires: Sat, 26 Jul 1997 05:00:00 GMT"); // Datum in der Vergangenheit
+// Testweise auskommentiert, um Fehlerquelle zu isolieren:
+// header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+// header("Cache-Control: post-check=0, pre-check=0", false);
+// header("Pragma: no-cache");
+// header("Expires: Sat, 26 Jul 1997 05:00:00 GMT"); // Datum in der Vergangenheit
 
-// Die BASE_URL Konstante sollte durch header.php (via config.php) bereits definiert sein.
-// Ein erneutes Laden von config.php ist nicht nötig und könnte fehlschlagen, wenn header.php sie schon geladen hat.
+// Die BASE_URL Konstante sollte durch config.php bereits definiert sein.
 
 // Weiterleitung zur Startseite mit einer Erfolgsmeldung
 // Die Erfolgsmeldung wird per GET-Parameter übergeben, da die Session zerstört ist.
@@ -49,7 +74,7 @@ if (!defined('BASE_URL')) {
 }
 header("Location: " . rtrim(BASE_URL, '/') . "/index.php?logout_success=1");
 exit; // Wichtig, um sicherzustellen, dass nach der Weiterleitung kein weiterer Code ausgeführt wird.
-?>
+// PHP End-Tag entfernt
 
 // Falls Cookies für die Session verwendet werden (Standard), das Session-Cookie löschen.
 // Hinweis: Dies zerstört die Session, nicht nur die Session-Daten!
