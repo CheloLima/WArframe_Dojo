@@ -27,8 +27,8 @@ $members = getAllUsersForList($pdo);
 
 ?>
 
-<h1>Mitgliederliste</h1>
-<p>Hier findest du eine Übersicht aller registrierten Mitglieder des Echo Sol Dojo.</p>
+<h1>Mitgliederliste der Endo Reserve Bank</h1> <!-- Angepasst -->
+<p>Hier findest du eine Übersicht aller registrierten Mitglieder der Endo Reserve Bank.</p> <!-- Angepasst -->
 
 <?php if (empty($members)): ?>
     <div class="message info">

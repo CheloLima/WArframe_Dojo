@@ -1,6 +1,6 @@
-# Echo Sol Dojo Community-Plattform
+# Endo Reserve Bank Community-Plattform
 
-Willkommen bei der Echo Sol Dojo Community-Plattform! Dieses Projekt stellt eine Webseite für den Warframe-Clan "Echo Sol Dojo" bereit, inklusive eines Mitgliederbereichs und eines Discord-Verifizierungs-Bots.
+Willkommen bei der Endo Reserve Bank Community-Plattform! Dieses Projekt stellt eine Webseite für den Warframe-Clan "Endo Reserve Bank" bereit, inklusive eines Mitgliederbereichs und eines Discord-Verifizierungs-Bots. <!-- Angepasst -->
 
 ## Inhaltsverzeichnis
 
@@ -112,12 +112,12 @@ Die Web-Anwendung benötigt eine MySQL-Datenbank, um Benutzerdaten, MOTD, Kommen
     *   Navigiere im Menü zu **"Websites & Domains"** und wähle die Domain aus, auf der du die Plattform installierst.
     *   Klicke auf der rechten Seite oder im Dashboard der Domain auf **"Datenbanken"**.
     *   Klicke auf den Button **"Datenbank hinzufügen"**.
-    *   **Datenbankname:** Gib einen Namen für deine Datenbank ein (z.B. `echo_sol_dojo` oder den von Plesk vorgeschlagenen Namen wie `webXX_db1`). Notiere dir diesen Namen.
+    *   **Datenbankname:** Gib einen Namen für deine Datenbank ein (z.B. `endo_reserve_bank_db` oder den von Plesk vorgeschlagenen Namen wie `webXX_db1`). Notiere dir diesen Namen. <!-- Angepasst -->
     *   **Zugehörige Website:** Stelle sicher, dass die korrekte Domain ausgewählt ist.
     *   **Datenbankserver:** Wähle den MySQL-Server aus (meist ist nur einer verfügbar, z.B. `localhost:3306`).
     *   **Benutzer erstellen:**
         *   Aktiviere die Option **"Datenbankbenutzer erstellen"**.
-        *   **Datenbankbenutzername:** Gib einen Benutzernamen ein (z.B. `echo_user` oder den von Plesk vorgeschlagenen Namen). Notiere dir diesen Namen.
+        *   **Datenbankbenutzername:** Gib einen Benutzernamen ein (z.B. `endo_bank_user` oder den von Plesk vorgeschlagenen Namen). Notiere dir diesen Namen. <!-- Angepasst -->
         *   **Passwort:** Generiere ein starkes Passwort oder gib ein eigenes ein. **Notiere dir dieses Passwort sicher!**
     *   **Benutzer hat Zugriff auf alle Datenbanken innerhalb des ausgewählten Abonnements (optional):** Diese Option ist meist nicht notwendig und sollte für bessere Sicherheit deaktiviert bleiben, es sei denn, du hast einen spezifischen Grund dafür. Der Benutzer sollte nur Zugriff auf die gerade erstellte Datenbank haben. Plesk konfiguriert dies normalerweise korrekt.
     *   Klicke auf **"OK"**, um die Datenbank und den Benutzer zu erstellen.
@@ -181,11 +181,11 @@ Die PHP-Anwendung benötigt eine Konfigurationsdatei (`config.php`), um Datenban
 
 
     // --- Allgemeine Seiteneinstellungen ---
-    define('SITE_NAME', 'Echo Sol Dojo'); // Name deiner Community/deines Clans
-    define('BASE_URL', 'httpsS://deinedomain.tld'); // Deine Basis-URL ohne Slash am Ende. WICHTIG: Ersetze 'deinedomain.tld'. Achte auf httpS.
+    define('SITE_NAME', 'Endo Reserve Bank - Warframe Clan DE'); // Angepasst an neue Vorgabe
+    define('BASE_URL', 'httpsS://dojo.chelo.lat'); // Beispiel-URL, anpassen!
 
     // --- Fehlerbehandlung (für Entwicklung true, für Produktion false) ---
-    define('DEBUG_MODE', false); // Setze dies auf 'false' für den Live-Betrieb!
+    define('DEBUG_MODE', true); // Für Entwicklung true, für Produktion false
 
     if (DEBUG_MODE) {
         ini_set('display_errors', 1);
@@ -196,17 +196,29 @@ Die PHP-Anwendung benötigt eine Konfigurationsdatei (`config.php`), um Datenban
         ini_set('display_startup_errors', 0);
         error_reporting(0);
     }
-    // ... (restliche Session-Einstellungen bleiben wie in config.example.php) ...
+
+    // --- Session Einstellungen ---
+    define('SESSION_NAME', 'ENDORESERVERBANKSESSID'); // Angepasst an neue Vorgabe
+    ini_set('session.name', SESSION_NAME);
+
+    ini_set('session.cookie_httponly', 1);
+    ini_set('session.use_only_cookies', 1);
+    if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') {
+       ini_set('session.cookie_secure', 1);
+    }
+    // ... (weitere Konstanten wie SUPER_ADMIN_DISCORD_ID etc. bleiben wie in der Datei config.example.php)
     ?>
     ```
     **Wichtige Hinweise zur `config.php`:**
-    *   **`DB_HOST`, `DB_NAME`, `DB_USER`, `DB_PASS`:** Trage hier die Daten ein, die du beim Erstellen der Datenbank in Plesk erhalten/festgelegt hast.
-    *   **`DISCORD_CLIENT_ID`, `DISCORD_CLIENT_SECRET`:** Diese erhältst du im nächsten Schritt ("Discord App einrichten").
-    *   **`DISCORD_REDIRECT_URI`:** Muss **exakt** mit der URL übereinstimmen, die du im Discord Developer Portal für deine App unter "Redirects" einträgst. Ersetze `deinedomain.tld` durch deine tatsächliche Domain. Wenn deine Seite unter `https://dojo.chelo.lat` läuft, wäre es `https://dojo.chelo.lat/callback.php`.
-    *   **`VERIFY_BOT_URL`:** Die öffentliche URL deines Python Verifizierungs-Bots (siehe Vorbereitung und Teil 2 der Anleitung).
-    *   **`BOT_API_SECRET_KEY`:** Das selbstgewählte, starke Passwort, das auch der Python-Bot in seiner `.env`-Datei verwendet.
-    *   **`BASE_URL`:** Die Haupt-URL deiner Webseite (z.B. `https://dojo.chelo.lat`). Ohne Slash am Ende.
-    *   **`DEBUG_MODE`:** Setze dies für den Live-Betrieb unbedingt auf `false`, um keine sensiblen Fehlermeldungen anzuzeigen.
+    *   **`DB_HOST`, `DB_NAME`, `DB_USER`, `DB_PASS`:** Trage hier die Daten ein, die du beim Erstellen der Datenbank in Plesk erhalten/festgelegt hast (Beispielwerte: `localhost`, `Warframe_Dojo`, `Warframe_Dojo`, `76~Ktx4d8` - **ÄNDERN!**).
+    *   **`DISCORD_CLIENT_ID`, `DISCORD_CLIENT_SECRET`:** Diese erhältst du im nächsten Schritt ("Discord App einrichten") (Beispielwerte: `1392357117142372436`, `YERKzJLoMyv6r2kRTWRhdXjoRBE8in9m` - **ÄNDERN!**).
+    *   **`DISCORD_REDIRECT_URI`:** Muss **exakt** mit der URL übereinstimmen, die auch in deiner `config.php` unter `DISCORD_REDIRECT_URI` steht (Beispiel: `https://dojo.chelo.lat/callback.php` - Domain anpassen!).
+    *   **`VERIFY_BOT_URL`:** Die öffentliche URL deines Python Verifizierungs-Bots (Beispiel: `http://45.13.225.40:8000/verify-user/` - anpassen!).
+    *   **`BOT_API_SECRET_KEY`:** Das selbstgewählte, starke Passwort, das auch der Python-Bot in seiner `.env`-Datei verwendet (Beispiel: `CheloLima_Security_Dojo69420` - **ÄNDERN!**).
+    *   **`SITE_NAME`**: Name deiner Webseite (Beispiel: `Endo Reserve Bank - Warframe Clan DE`).
+    *   **`BASE_URL`:** Die Haupt-URL deiner Webseite (Beispiel: `https://dojo.chelo.lat` - Domain anpassen!). Ohne Slash am Ende.
+    *   **`DEBUG_MODE`:** Setze dies für den Live-Betrieb unbedingt auf `false`.
+    *   **`SESSION_NAME`**: Name für die PHP Session (Beispiel: `ENDORESERVERBANKSESSID`).
 
     Speichere die `config.php` nach dem Anpassen.
 
@@ -219,7 +231,7 @@ Damit sich Benutzer über Discord einloggen können, musst du eine "Application"
 
 2.  **Neue Applikation erstellen:**
     *   Klicke oben rechts auf den Button **"New Application"**.
-    *   Gib deiner App einen Namen (z.B. "Echo Sol Dojo Login" oder "Meine Clan Webseite"). Dieser Name wird den Benutzern beim Login angezeigt.
+    *   Gib deiner App einen Namen (z.B. "Endo Reserve Bank Login" oder "Meine Clan Webseite"). Dieser Name wird den Benutzern beim Login angezeigt. <!-- Angepasst -->
     *   Akzeptiere die Discord Developer Terms of Service und klicke auf **"Create"**.
 
 3.  **Allgemeine Informationen (optional):**
@@ -244,6 +256,10 @@ Damit sich Benutzer über Discord einloggen können, musst du eine "Application"
     Die Anwendung verwendet die Scopes `identify` (um Basis-Benutzerinfos zu erhalten) und `guilds.members.read` (damit der Bot später Rollen auf dem Server prüfen kann, falls der Bot selbst diese Berechtigung benötigt und die PHP-Anwendung diese Info an den Bot weitergibt - für diese spezielle Implementierung wird `guilds.members.read` primär vom Bot verwendet, aber es schadet nicht, wenn die OAuth-App es auch anfragt, falls zukünftige Erweiterungen es benötigen). Diese Scopes werden im PHP-Code (`index.php` beim Generieren der OAuth-URL) bereits angefordert. Du musst hier im Developer Portal in der Regel nichts weiter für die Scopes einstellen, solange sie von der App angefordert werden.
 
     Deine Discord App ist nun für den OAuth2-Login eingerichtet. Die `Client ID` und das `Client Secret` in deiner `config.php` ermöglichen der PHP-Anwendung, mit Discord zu kommunizieren.
+
+### Farbschema anpassen (Optional)
+
+Die Webseite verfügt über eine Farbauswahl im Footer-Bereich. Benutzer können dort aus verschiedenen vordefinierten Akzentfarben wählen, um das Erscheinungsbild der Seite anzupassen. Die Auswahl wird lokal im Browser des Benutzers gespeichert.
 
 ---
 
@@ -279,11 +295,11 @@ Diese Befehle aktualisieren deine Paketliste und installieren Python 3, den Pake
 
     **Alternative (Manueller Upload):**
     Wenn du die Dateien manuell (z.B. per SCP oder SFTP) hochlädst:
-    *   Erstelle auf deinem Server das Verzeichnis: `mkdir -p ~/echosoldojo_platform/discord_bot`
-    *   Lade alle Inhalte des lokalen `discord_bot`-Ordners (also `main.py`, `requirements.txt`, `.env.example`, `echosoldojo_bot.service`) in das Verzeichnis `~/echosoldojo_platform/discord_bot` auf dem Server.
+    *   Erstelle auf deinem Server das Verzeichnis: `mkdir -p ~/endoreservebank_platform/discord_bot` <!-- Angepasst -->
+    *   Lade alle Inhalte des lokalen `discord_bot`-Ordners (also `main.py`, `requirements.txt`, `.env.example`, `endoreservebank_bot.service`) in das Verzeichnis `~/endoreservebank_platform/discord_bot` auf dem Server. <!-- Angepasst -->
     *   Navigiere in das Bot-Verzeichnis auf dem Server:
         ```bash
-        cd ~/echosoldojo_platform/discord_bot
+        cd ~/endoreservebank_platform/discord_bot <!-- Angepasst -->
         ```
     Für die weiteren Schritte gehen wir davon aus, dass du dich im Verzeichnis `discord_bot` befindest, das alle Bot-Dateien enthält.
 
@@ -339,11 +355,11 @@ Der Bot benötigt einige Konfigurationswerte, um korrekt zu funktionieren. Diese
 
         # Discord Server (Guild) ID
         # Die ID des Discord-Servers, auf dem die Mitgliedschaft und Rolle geprüft werden soll.
-        GUILD_ID="1212768310312042566" # Voreingestellt für Echo Sol Dojo
+        GUILD_ID="1212768310312042566" # Voreingestellt für Endo Reserve Bank (Server ID bleibt gleich)
 
         # Discord Rollen ID
         # Die ID der Rolle, die für eine erfolgreiche Verifizierung erforderlich ist.
-        ROLE_ID="1391269160994209873" # Voreingestellt für Echo Sol Dojo
+        ROLE_ID="1391269160994209873" # Voreingestellt für Endo Reserve Bank (Rollen ID bleibt gleich)
         ```
     *   Speichere die Datei und schließe den Editor. (Für `nano`: `Ctrl+X`, dann `Y`, dann `Enter`).
 
@@ -392,35 +408,36 @@ Wenn alles funktioniert, beende den Testlauf mit `Ctrl+C`.
 Damit der Bot dauerhaft im Hintergrund läuft und automatisch nach einem Serverneustart gestartet wird, richtest du einen systemd-Service ein.
 
 1.  **Service-Datei vorbereiten und kopieren:**
-    Im `discord_bot`-Verzeichnis befindet sich eine Vorlagedatei namens `echosoldojo_bot.service`.
+    Im `discord_bot`-Verzeichnis befindet sich eine Vorlagedatei namens `endoreservebank_bot.service` (vorher `echosoldojo_bot.service` - der Dateiname im Repository wird ebenfalls angepasst).
     Du musst diese Datei anpassen und dann nach `/etc/systemd/system/` kopieren.
 
-    **Öffne die `echosoldojo_bot.service`-Datei (noch in deinem Projektverzeichnis) mit einem Editor und passe folgende Zeilen an:**
+    **Öffne die `endoreservebank_bot.service`-Datei (noch in deinem Projektverzeichnis) mit einem Editor und passe folgende Zeilen an:**
     *   `User=dein_benutzername`: Ersetze `dein_benutzername` durch den Linux-Benutzernamen, unter dem der Bot laufen soll (wahrscheinlich dein eigener Benutzer, wenn du alles in deinem Home-Verzeichnis eingerichtet hast).
-    *   `WorkingDirectory=/pfad/zum/discord_bot`: Ersetze `/pfad/zum/discord_bot` durch den **vollständigen, absoluten Pfad** zu deinem `discord_bot`-Verzeichnis. Beispiel: `/home/dein_benutzername/echosoldojo_platform/discord_bot`. Du kannst den Pfad mit `pwd` herausfinden, wenn du im Verzeichnis bist.
+    *   `WorkingDirectory=/pfad/zum/discord_bot`: Ersetze `/pfad/zum/discord_bot` durch den **vollständigen, absoluten Pfad** zu deinem `discord_bot`-Verzeichnis. Beispiel: `/home/dein_benutzername/endoreservebank_platform/discord_bot`. Du kannst den Pfad mit `pwd` herausfinden, wenn du im Verzeichnis bist.
     *   `ExecStart=/pfad/zum/discord_bot/venv/bin/python ...`: Ersetze hier ebenfalls `/pfad/zum/discord_bot` in beiden Pfadangaben (zum Python-Interpreter in der venv und zum Uvicorn-Skript in der venv).
     *   `EnvironmentFile=/pfad/zum/discord_bot/.env`: Stelle sicher, dass dieser Pfad korrekt zur `.env`-Datei im `discord_bot`-Verzeichnis zeigt.
 
-    **Beispiel für eine angepasste `echosoldojo_bot.service`:**
+    **Beispiel für eine angepasste `endoreservebank_bot.service`:**
     ```ini
     [Unit]
-    Description=Echo Sol Dojo Discord Verification Bot
+    Description=Endo Reserve Bank Discord Verification Bot <!-- Angepasst -->
     After=network.target
 
     [Service]
     User=myuser
-    WorkingDirectory=/home/myuser/echosoldojo_platform/discord_bot
-    ExecStart=/home/myuser/echosoldojo_platform/discord_bot/venv/bin/python /home/myuser/echosoldojo_platform/discord_bot/venv/bin/uvicorn main:app --host 0.0.0.0 --port 8000
+    WorkingDirectory=/home/myuser/endoreservebank_platform/discord_bot <!-- Angepasst -->
+    ExecStart=/home/myuser/endoreservebank_platform/discord_bot/venv/bin/python /home/myuser/endoreservebank_platform/discord_bot/venv/bin/uvicorn main:app --host 0.0.0.0 --port 8000
     Restart=always
-    EnvironmentFile=/home/myuser/echosoldojo_platform/discord_bot/.env
+    EnvironmentFile=/home/myuser/endoreservebank_platform/discord_bot/.env <!-- Angepasst -->
 
     [Install]
     WantedBy=multi-user.target
     ```
 
     **Kopiere die angepasste Datei:**
+    (Stelle sicher, dass der Dateiname der Service-Datei `endoreservebank_bot.service` ist, bevor du ihn kopierst)
     ```bash
-    sudo cp ~/echosoldojo_platform/discord_bot/echosoldojo_bot.service /etc/systemd/system/echosoldojo_bot.service
+    sudo cp ~/endoreservebank_platform/discord_bot/endoreservebank_bot.service /etc/systemd/system/endoreservebank_bot.service
     ```
     (Passe den Quellpfad an, falls dein Projekt woanders liegt).
 
@@ -431,25 +448,25 @@ Damit der Bot dauerhaft im Hintergrund läuft und automatisch nach einem Servern
         ```
     *   Aktiviere den Service, damit er beim Systemstart automatisch gestartet wird:
         ```bash
-        sudo systemctl enable echosoldojo_bot.service
+        sudo systemctl enable endoreservebank_bot.service
         ```
     *   Starte den Service manuell (für den ersten Start):
         ```bash
-        sudo systemctl start echosoldojo_bot.service
+        sudo systemctl start endoreservebank_bot.service
         ```
 
 3.  **Status überprüfen und Logs einsehen:**
     *   Überprüfe den Status des Services:
         ```bash
-        sudo systemctl status echosoldojo_bot.service
+        sudo systemctl status endoreservebank_bot.service
         ```
         Du solltest sehen, dass der Service `active (running)` ist. Wenn nicht, gibt die Ausgabe Hinweise auf Fehler.
     *   Um die Log-Ausgaben des Bots (inklusive `print()`-Anweisungen und Fehler) einzusehen:
         ```bash
-        sudo journalctl -u echosoldojo_bot.service -f
+        sudo journalctl -u endoreservebank_bot.service -f
         ```
         Mit `-f` (follow) siehst du neue Logeinträge in Echtzeit. Drücke `Ctrl+C`, um die Ansicht zu beenden.
-        Für spezifische Fehler seit dem letzten Start: `sudo journalctl -u echosoldojo_bot.service -e`
+        Für spezifische Fehler seit dem letzten Start: `sudo journalctl -u endoreservebank_bot.service -e`
 
 Wenn der Service läuft, ist dein Python-Verifizierungs-Bot einsatzbereit! Denke daran, die URL (inkl. Port, falls nicht 80/443) und den `API_SECRET_KEY` in der `config.php` der Web-Anwendung korrekt zu hinterlegen.
 
@@ -467,8 +484,8 @@ Hier ist eine Checkliste der wichtigen IDs und Konfigurationsdaten, die du währ
 
 *   **MySQL-Datenbank:**
     *   `DB_HOST`: (z.B. `localhost`, `127.0.0.1`, oder spezifischer Host deines Anbieters)
-    *   `DB_NAME`: (Name der erstellten Datenbank, z.B. `echo_sol_dojo`)
-    *   `DB_USER`: (Datenbank-Benutzername, z.B. `echo_user`)
+    *   `DB_NAME`: (Name der erstellten Datenbank, z.B. `endo_reserve_bank_db`) <!-- Angepasst -->
+    *   `DB_USER`: (Datenbank-Benutzername, z.B. `endo_bank_user`) <!-- Angepasst -->
     *   `DB_PASS`: (Passwort für den Datenbank-Benutzer)
 
 *   **Discord OAuth2 Credentials (aus dem Discord Developer Portal):**
@@ -481,7 +498,7 @@ Hier ist eine Checkliste der wichtigen IDs und Konfigurationsdaten, die du währ
     *   `BOT_API_SECRET_KEY`: (Dein selbstgewähltes, starkes Secret – muss identisch zum Bot sein!)
 
 *   **Allgemeine Einstellungen:**
-    *   `SITE_NAME`: (Name deiner Community, z.B. "Echo Sol Dojo")
+    *   `SITE_NAME`: (Name deiner Community, z.B. "Endo Reserve Bank") <!-- Angepasst -->
     *   `BASE_URL`: (Die Basis-URL deiner Webseite, z.B. `https://dojo.chelo.lat`)
     *   `DEBUG_MODE`: `true` für Entwicklung, **`false` für Live-Betrieb!**
 

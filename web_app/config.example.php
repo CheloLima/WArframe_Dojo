@@ -2,14 +2,14 @@
 
 // --- Datenbank Konfiguration ---
 define('DB_HOST', 'localhost'); // Oft localhost, ansonsten vom Hoster bereitgestellt
-define('DB_NAME', 'chelo_prime');    // Dein Datenbankname
-define('DB_USER', 'chelo_prime');    // Dein Datenbankbenutzer
-define('DB_PASS', 'DEIN_MYSQL_PASSWORT'); // Dein Datenbankpasswort
+define('DB_NAME', 'Warframe_Dojo');    // Dein Datenbankname
+define('DB_USER', 'Warframe_Dojo');    // Dein Datenbankbenutzer
+define('DB_PASS', '76~Ktx4d8'); // Dein Datenbankpasswort // LOKAL TEST PASSWORT, BITTE ÄNDERN!
 define('DB_CHARSET', 'utf8mb4');
 
 // --- Discord OAuth2 Konfiguration ---
-define('DISCORD_CLIENT_ID', 'DEINE_DISCORD_CLIENT_ID'); // Deine Discord App Client ID
-define('DISCORD_CLIENT_SECRET', 'DEIN_DISCORD_CLIENT_SECRET'); // Dein Discord App Client Secret
+define('DISCORD_CLIENT_ID', '1392357117142372436'); // Deine Discord App Client ID
+define('DISCORD_CLIENT_SECRET', 'YERKzJLoMyv6r2kRTWRhdXjoRBE8in9m'); // Dein Discord App Client Secret // LOKAL TEST SECRET, BITTE ÄNDERN!
 define('DISCORD_REDIRECT_URI', 'https://dojo.chelo.lat/callback.php'); // Deine Redirect URI (muss exakt mit der im Discord Developer Portal übereinstimmen!)
 // Stelle sicher, dass die callback.php am Ende steht, wenn deine Callback-URL direkt auf die Datei zeigt.
 // Falls du URL-Rewriting verwendest und /callback ohne .php funktioniert, passe es entsprechend an.
@@ -17,18 +17,18 @@ define('DISCORD_REDIRECT_URI', 'https://dojo.chelo.lat/callback.php'); // Deine 
 // --- Python Verifizierungs-Bot Konfiguration ---
 // Die vollständige URL zum /verify-user/ Endpunkt deines Python Bots
 // Beispiel: 'http://123.45.67.89:8000/verify-user/' oder 'https://yourbot.yourdomain.com/verify-user/'
-define('VERIFY_BOT_URL', 'http://DEINE_BOT_SERVER_IP_ODER_DOMAIN:PORT/verify-user/');
+define('VERIFY_BOT_URL', 'http://45.13.225.40:8000/verify-user/');
 
 // Das Secret API Key, das sowohl hier als auch in der .env Datei des Python Bots identisch sein muss.
-define('BOT_API_SECRET_KEY', 'DEIN_STARKES_GEHEIMES_API_KEY');
+define('BOT_API_SECRET_KEY', 'CheloLima_Security_Dojo69420'); // LOKAL TEST KEY, BITTE ÄNDERN!
 
 
 // --- Allgemeine Seiteneinstellungen ---
-define('SITE_NAME', 'Echo Sol Dojo');
+define('SITE_NAME', 'Endo Reserve Bank - Warframe Clan DE'); // Angepasst
 define('BASE_URL', 'https://dojo.chelo.lat'); // Deine Basis-URL ohne Slash am Ende
 
 // --- Fehlerbehandlung (für Entwicklung true, für Produktion false) ---
-define('DEBUG_MODE', true);
+define('DEBUG_MODE', true); // Für Entwicklung true, für Produktion false
 
 if (DEBUG_MODE) {
     ini_set('display_errors', 1);
@@ -42,8 +42,9 @@ if (DEBUG_MODE) {
 
 // --- Session Einstellungen ---
 // Name der Session, um Konflikte mit anderen Anwendungen auf derselben Domain zu vermeiden.
-// Kann meistens so belassen werden.
-ini_set('session.name', 'ECHOSOLDOJOSESSID');
+define('SESSION_NAME', 'ENDORESERVERBANKSESSID'); // Angepasst
+ini_set('session.name', SESSION_NAME);
+
 
 // Stellt sicher, dass Sessions nur über HTTP(S) übertragen werden und nicht per JavaScript zugänglich sind.
 ini_set('session.cookie_httponly', 1);
@@ -55,7 +56,9 @@ ini_set('session.use_only_cookies', 1);
 // Wenn deine Seite ausschließlich über HTTPS läuft, setze dies auf 1.
 // Für lokale Entwicklung ohne HTTPS kann es auf 0 bleiben oder auskommentiert werden.
 // Auf einer Live-Seite mit HTTPS sollte es '1' sein.
-// ini_set('session.cookie_secure', 1);
+if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') {
+   ini_set('session.cookie_secure', 1);
+}
 
 
 // --- Wichtige Discord IDs (informativ, werden primär im Bot und schema.sql verwendet) ---

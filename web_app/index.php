@@ -31,7 +31,7 @@ if (defined('DISCORD_CLIENT_ID') && defined('DISCORD_REDIRECT_URI')) {
 ?>
 
 <div class="hero-section">
-    <h1>Willkommen im Echo Sol Dojo!</h1>
+    <h1>Willkommen bei der Endo Reserve Bank!</h1> <!-- Angepasst -->
     <p>Deine zentrale Anlaufstelle für alles rund um unseren Warframe Clan.</p>
     <?php if (!$is_logged_in && !empty($discord_oauth_url)): ?>
         <a href="<?php echo htmlspecialchars($discord_oauth_url); ?>" class="button btn-login">
@@ -48,8 +48,12 @@ if (defined('DISCORD_CLIENT_ID') && defined('DISCORD_REDIRECT_URI')) {
 </div>
 
 <div class="content-section">
-    <h2>Über Uns</h2>
-    <p>Das Echo Sol Dojo ist mehr als nur ein Clan – wir sind eine Gemeinschaft von Tenno, die gemeinsam die Herausforderungen des Origin Systems meistern. Egal ob du ein erfahrener Veteran oder ein neuer Spieler bist, hier findest du Unterstützung, Kameradschaft und jede Menge Action.</p>
+    <h2>Über Uns - Die Endo Reserve Bank</h2> <!-- Angepasst -->
+    <p>Es war einmal in einer Zeit des größten Mangels... nicht an Mods, nicht an Prime-Teilen, sondern am wahren Gold des Tenno-Universums: <strong>Endo!</strong> Die Lager waren leer, die Forschungen stockten, und selbst die mächtigsten Warframes krümmten sich vor Schmerz, weil ihre Mods nicht aufgewertet werden konnten.</p>
+    <p>In dieser finsteren Stunde trafen sich die weisesten (und gierigsten) Tenno. Sie blickten auf ihre armseligen Endo-Konten und wussten: So konnte es nicht weitergehen! Nicht die Grineer, nicht die Corpus – der wahre Feind war das Endo-Defizit!</p>
+    <p>So wurde die <strong>Endo Reserve Bank</strong> geboren! Unser Gründungsprinzip ist einfach: Wir farmen Endo, wir horten Endo, wir beten zu den Göttern des Endo und wir geben Endo nur für die allerwichtigsten Mods aus (oder wenn wir wirklich, WIRKLICH einen Prime-Build fertigstellen müssen). Wir sind die Hüter der wahren galaktischen Währung, die Spekulanten des Synthese-Kerns und die letzten Verteidiger gegen das gefürchtete "Nicht genügend Endo"-Pop-up.</p>
+
+    <h3 class="mt-2">Unsere Plattform</h3>
     <p>Diese Plattform dient als unser zentraler Hub für Informationen, Organisation und Community-Aktivitäten. Hier findest du:</p>
     <ul>
         <li>Aktuelle Clan-Nachrichten (MOTD)</li>

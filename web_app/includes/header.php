@@ -6,14 +6,23 @@ if (file_exists(__DIR__ . '/../config.php')) {
 } else {
     // Fallback, falls config.php noch nicht existiert oder der Pfad nicht stimmt.
     // Dies ist eher für die Entwicklungsphase. Im Live-Betrieb sollte config.php immer da sein.
-    if (!defined('SITE_NAME')) define('SITE_NAME', 'Echo Sol Dojo');
-    if (!defined('BASE_URL')) define('BASE_URL', '.'); // Fallback auf relative Pfade
+    if (!defined('SITE_NAME')) define('SITE_NAME', 'Endo Reserve Bank');
+    if (!defined('BASE_URL')) define('BASE_URL', '.');
 }
 
 if (session_status() == PHP_SESSION_NONE) {
     // Session-Optionen setzen, bevor session_start() aufgerufen wird
-    // Name der Session, um Konflikte mit anderen Anwendungen auf derselben Domain zu vermeiden.
-    ini_set('session.name', 'ECHOSOLDOJOSESSID');
+    // Der Name der Session wird durch die config.php gesetzt (via define('SESSION_NAME', ...) und ini_set).
+    // Dieser Block ist ein Fallback, falls config.php nicht existiert ODER SESSION_NAME dort nicht definiert wurde.
+    // Die config.php wird ZUERST geladen. Wenn dort ini_set('session.name', ...) steht, ist das maßgeblich.
+    // Wenn config.php nur define('SESSION_NAME',...) hat, würde dieser Block hier den Namen setzen, falls SESSION_NAME definiert ist.
+    if (defined('SESSION_NAME') && !headers_sent()) { // Nur setzen, wenn Konstante existiert und Header noch nicht gesendet
+        // ini_set('session.name', SESSION_NAME); // Wird bereits in config.php gemacht
+    } elseif (!headers_sent()) {
+        // Fallback, falls SESSION_NAME nicht in config.php definiert wurde (sollte aber)
+        // oder config.php gar nicht existiert.
+        ini_set('session.name', 'ENDORESERVERBANKSESSID');
+    }
     // Stellt sicher, dass Sessions nur über HTTP(S) übertragen werden und nicht per JavaScript zugänglich sind.
     ini_set('session.cookie_httponly', 1);
     // Verwendet nur Cookies für die Session-ID und nicht auch URL-Parameter.
@@ -47,7 +56,7 @@ $_SESSION['last_activity'] = time(); // Aktualisiere den Zeitstempel der letzten
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo htmlspecialchars(defined('PAGE_TITLE') ? PAGE_TITLE . ' - ' . SITE_NAME : SITE_NAME); ?></title>
-    <meta name="description" content="Community-Plattform für den Warframe Clan Echo Sol Dojo.">
+    <meta name="description" content="Community-Plattform für den Warframe Clan Endo Reserve Bank."> <!-- Angepasst -->
     <!-- Favicon-Platzhalter - Ersetze dies durch deine eigenen Favicons -->
     <link rel="icon" href="<?php echo BASE_URL; ?>/favicon.ico" sizes="any">
     <link rel="icon" href="<?php echo BASE_URL; ?>/favicon.svg" type="image/svg+xml">
