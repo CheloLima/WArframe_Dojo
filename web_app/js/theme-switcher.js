@@ -9,8 +9,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const defaultTheme = {
         color: '#6AFF00', // Standard Giftgrün
-        rgb: '106,255,0'
+        rgb: '106,255,0',
+        defaultButtonTextColor: 'var(--button-text-dark)' // Standard für Grün ist dunkler Text
     };
+
+    // Funktion zur Berechnung der relativen Luminanz (Helligkeit) einer Hex-Farbe
+    // Gibt einen Wert zwischen 0 (schwarz) und 255 (weiß) zurück
+    function getLuminance(hexColor) {
+        const hex = hexColor.replace('#', '');
+        const r = parseInt(hex.substring(0, 2), 16);
+        const g = parseInt(hex.substring(2, 4), 16);
+        const b = parseInt(hex.substring(4, 6), 16);
+        // Formel für relative Luminanz (vereinfacht, YCbCr)
+        return 0.299 * r + 0.587 * g + 0.114 * b;
+    }
 
     function applyTheme(hexColor, rgbColorString) {
         if (!hexColor || !rgbColorString) {
@@ -19,6 +31,16 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         root.style.setProperty('--color-primary-accent', hexColor);
         root.style.setProperty('--color-primary-accent-rgb', rgbColorString);
+
+        // Button-Textfarbe basierend auf der Helligkeit der Akzentfarbe bestimmen
+        const luminance = getLuminance(hexColor);
+        // Schwellenwert für Helligkeit (experimentell, kann angepasst werden)
+        // Farben mit Luminanz > 128-150 gelten als "hell"
+        if (luminance > 140) { // Wenn Akzentfarbe hell ist
+            root.style.setProperty('--button-current-text-color', 'var(--button-text-dark)');
+        } else { // Wenn Akzentfarbe dunkel ist
+            root.style.setProperty('--button-current-text-color', 'var(--button-text-light)');
+        }
 
         // Optional: Anpassung von Border-Glow und Glow-Shadow basierend auf der neuen Primärfarbe.
         // Die aktuellen CSS-Variablen (--color-border-glow, --glow-shadow-primary)

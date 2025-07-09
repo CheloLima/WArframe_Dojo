@@ -41,7 +41,8 @@ $members = getAllUsersForList($pdo);
                 <div class="member-list-item card">
                     <div class="member-avatar-container">
                         <?php
-                        $avatar_url = htmlspecialchars(!empty($member['discord_avatar_url']) ? $member['discord_avatar_url'] : BASE_URL . '/assets/images/default_avatar.png');
+                        $discord_avatar = $member['discord_avatar_url'];
+                        $avatar_url = ($discord_avatar !== null && $discord_avatar !== '') ? htmlspecialchars($discord_avatar) : BASE_URL . '/assets/images/default_avatar.png';
                         // Fallback, falls default_avatar.png nicht existiert (CSS könnte auch ein Default setzen)
                         // if (!empty($member['discord_avatar_url'])) {
                         //    $avatar_url = htmlspecialchars($member['discord_avatar_url']);

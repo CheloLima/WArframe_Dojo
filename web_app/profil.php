@@ -91,7 +91,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_comment'])) {
 define('PAGE_TITLE_DYNAMIC', 'Profil von ' . htmlspecialchars($profile_user['discord_username']));
 
 // Avatar URL
-$profile_avatar_url = htmlspecialchars(!empty($profile_user['discord_avatar_url']) ? $profile_user['discord_avatar_url'] : BASE_URL . '/assets/images/default_avatar.png');
+$discord_profile_avatar = $profile_user['discord_avatar_url'];
+$profile_avatar_url = ($discord_profile_avatar !== null && $discord_profile_avatar !== '') ? htmlspecialchars($discord_profile_avatar) : BASE_URL . '/assets/images/default_avatar.png';
 
 ?>
 <!-- Dynamischer Seitentitel im Header anpassen -->
@@ -215,9 +216,13 @@ $profile_avatar_url = htmlspecialchars(!empty($profile_user['discord_avatar_url'
             <p>Noch keine Kommentare für dieses Profil vorhanden.</p>
         <?php else: ?>
             <?php foreach ($comments as $comment): ?>
+                <?php
+                $comment_author_avatar_src = $comment['author_avatar_url'];
+                $comment_avatar_display_url = ($comment_author_avatar_src !== null && $comment_author_avatar_src !== '') ? htmlspecialchars($comment_author_avatar_src) : BASE_URL . '/assets/images/default_avatar.png';
+                ?>
                 <div class="comment card">
                     <div class="comment-header">
-                        <img src="<?php echo htmlspecialchars(!empty($comment['author_avatar_url']) ? $comment['author_avatar_url'] : BASE_URL . '/assets/images/default_avatar.png'); ?>" alt="Avatar von <?php echo htmlspecialchars($comment['author_username']); ?>" class="comment-author-avatar">
+                        <img src="<?php echo $comment_avatar_display_url; ?>" alt="Avatar von <?php echo htmlspecialchars($comment['author_username']); ?>" class="comment-author-avatar">
                         <strong class="comment-author">
                             <a href="profil.php?id=<?php echo htmlspecialchars($comment['author_discord_id']); ?>">
                                 <?php echo htmlspecialchars($comment['author_username']); ?>
