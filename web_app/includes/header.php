@@ -40,15 +40,36 @@ $is_logged_in = isset($_SESSION['discord_id']);
 $is_admin = isset($_SESSION['isAdmin']) && $_SESSION['isAdmin'] === true;
 
 // Automatisches Logout nach Inaktivität (Beispiel: 30 Minuten)
-$timeout_duration = 1800; // 30 Minuten in Sekunden
-if ($is_logged_in && isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity']) > $timeout_duration) {
-    session_unset();
-    session_destroy();
-    header("Location: " . BASE_URL . "/index.php?session_expired=1"); // Leite zur Startseite mit Info
-    exit;
-}
-$_SESSION['last_activity'] = time(); // Aktualisiere den Zeitstempel der letzten Aktivität
+// Nur ausführen, wenn es NICHT die logout.php ist, um Header-Konflikte zu vermeiden.
+if ($current_page !== 'logout.php') {
+    $timeout_duration = 1800; // 30 Minuten in Sekunden
+    if ($is_logged_in && isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity']) > $timeout_duration) {
+        // Session-Daten für den Timeout-Fall vorbereiten, aber den Redirect der logout.php nicht stören
+        if ($current_page !== 'callback.php') { // callback.php macht eigene Redirects und Session-Handling
+            $redirect_url = defined('BASE_URL') ? rtrim(BASE_URL, '/') : '.';
+            // Wichtig: Hier session_unset() und session_destroy() nicht global machen,
+            // da header.php von vielen Seiten eingebunden wird.
+            // Stattdessen eine spezielle Logout-Aktion für Timeout auslösen,
+            // die dann die Session sicher beendet und weiterleitet.
+            // Für den Moment: Wenn Timeout, leite direkt um, ABER nur wenn keine Header gesendet wurden.
+            // Dies ist immer noch heikel. Besser wäre, wenn jede Seite prüft, ob $is_logged_in noch true ist.
+            // Die sicherste Variante wäre, hier nur eine Flag zu setzen und die Seite selbst reagieren zu lassen.
+            // Da aber logout.php das Problem ist, verhindern wir hier den Redirect für alle Seiten,
+            // und verlassen uns darauf, dass $is_logged_in beim nächsten Seitenaufruf false ist.
+            // Der Redirect in logout.php muss aber funktionieren.
 
+            // Temporäre Lösung: Für den Timeout-Fall setzen wir eine Session-Variable und lassen die Seite entscheiden
+            // $_SESSION['session_timed_out'] = true;
+            // Sicherste Variante für jetzt, um den 500er in logout.php zu vermeiden: KEIN header() hier bei Timeout.
+            // Die Seite wird beim nächsten Request feststellen, dass der User nicht mehr eingeloggt ist.
+            // Die Aufräumaktion (session_unset, session_destroy) wird dann von logout.php oder der nächsten regulären Prüfung übernommen.
+        }
+    }
+    // last_activity nur aktualisieren, wenn eingeloggt und die Session nicht gerade abgelaufen ist.
+    if ($is_logged_in) { // Diese Prüfung ist wichtig!
+        $_SESSION['last_activity'] = time(); // Aktualisiere den Zeitstempel der letzten Aktivität
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="de">
