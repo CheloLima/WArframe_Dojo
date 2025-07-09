@@ -714,6 +714,21 @@ table td a { /* Links in Tabellen hervorheben */
     /* Spezifische Stile für Karten auf Admin- oder Profilseiten */
 }
 
+/* Navigations Avatar */
+.nav-avatar {
+    width: 24px; /* Kleinere Größe für Navigationsleiste */
+    height: 24px;
+    border-radius: 50%;
+    margin-right: 8px;
+    vertical-align: middle;
+    border: 1px solid var(--color-border);
+}
+.nav-user-link { /* Um Bild und Text zusammenzuhalten */
+    display: flex;
+    align-items: center;
+}
+
+
 /* --- Theme Switcher --- */
 .theme-switcher-container {
     text-align: center;

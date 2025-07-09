@@ -42,6 +42,7 @@ CREATE TABLE `users` (
   `custom_title_id` INT DEFAULT NULL,
   `discord_username` VARCHAR(255) NOT NULL,
   `discord_avatar_url` VARCHAR(255) DEFAULT NULL,
+  `custom_avatar_path` VARCHAR(255) DEFAULT NULL,
   `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`discord_id`)

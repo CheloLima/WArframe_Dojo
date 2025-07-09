@@ -106,7 +106,20 @@ if ($current_page !== 'logout.php') {
                         <?php if ($is_admin): ?>
                             <li><a href="<?php echo BASE_URL; ?>/admin.php" class="<?php echo ($current_page === 'admin.php') ? 'active' : ''; ?>">Admin</a></li>
                         <?php endif; ?>
-                        <li><a href="<?php echo BASE_URL; ?>/logout.php">Logout (<?php echo htmlspecialchars(isset($_SESSION['discord_username']) ? $_SESSION['discord_username'] : ''); ?>)</a></li>
+                        <li>
+                            <a href="<?php echo BASE_URL; ?>/logout.php" class="nav-user-link">
+                                <?php
+                                $nav_avatar_url = BASE_URL . '/assets/images/default_avatar.png';
+                                if (!empty($_SESSION['custom_avatar_path']) && file_exists(__DIR__ . '/../' . $_SESSION['custom_avatar_path'])) {
+                                    $nav_avatar_url = BASE_URL . '/' . htmlspecialchars($_SESSION['custom_avatar_path']) . '?v=' . time();
+                                } elseif (!empty($_SESSION['discord_avatar_url'])) {
+                                    $nav_avatar_url = htmlspecialchars($_SESSION['discord_avatar_url']);
+                                }
+                                ?>
+                                <img src="<?php echo $nav_avatar_url; ?>" alt="Dein Avatar" class="nav-avatar">
+                                Logout (<?php echo htmlspecialchars(isset($_SESSION['discord_username']) ? $_SESSION['discord_username'] : ''); ?>)
+                            </a>
+                        </li>
                     <?php else: ?>
                         <!-- Der Login-Button wird oft separat oder auf der Startseite prominent platziert -->
                         <!-- Hier könnte ein direkter Link sein, wenn der Login-Prozess nicht über einen Button auf index.php gestartet wird -->

@@ -72,7 +72,18 @@ if (!defined('BASE_URL')) {
     // Fallback, falls BASE_URL aus irgendeinem Grund nicht definiert wurde (sollte nicht passieren)
     define('BASE_URL', '.');
 }
-header("Location: " . rtrim(BASE_URL, '/') . "/index.php?logout_success=1");
+
+$redirect_target = rtrim(BASE_URL, '/') . "/index.php?logout_success=1";
+if (isset($_GET['action']) && $_GET['action'] === 'resync_avatar' && isset($_GET['return_to'])) {
+    // Spezifische Weiterleitung nach Avatar-Resync-Logout
+    // index.php wird den return_to Parameter an callback.php weitergeben müssen,
+    // oder callback.php direkt aufrufen, falls das sicher implementierbar ist.
+    // Einfacher: index.php mit speziellem Hinweis und Link zum Login.
+    $return_page = basename(filter_var($_GET['return_to'], FILTER_SANITIZE_URL)); // Nur Dateiname als Sicherheit
+    $redirect_target = rtrim(BASE_URL, '/') . "/index.php?logout_success=1&action=resync_avatar&return_to=" . urlencode($return_page);
+}
+
+header("Location: " . $redirect_target);
 exit; // Wichtig, um sicherzustellen, dass nach der Weiterleitung kein weiterer Code ausgeführt wird.
 // PHP End-Tag entfernt
 

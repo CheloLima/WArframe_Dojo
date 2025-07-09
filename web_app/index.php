@@ -20,11 +20,21 @@ $discord_oauth_url = '';
 if (defined('DISCORD_CLIENT_ID') && defined('DISCORD_REDIRECT_URI')) {
     $params = [
         'client_id' => DISCORD_CLIENT_ID,
-        'redirect_uri' => DISCORD_REDIRECT_URI,
+        'redirect_uri' => DISCORD_REDIRECT_URI, // callback.php
         'response_type' => 'code',
-        'scope' => 'identify guilds.members.read', // Benötigte Scopes
-        // 'prompt' => 'consent' // Optional: Erzwingt erneute Zustimmung (für Tests manchmal nützlich)
+        'scope' => 'identify guilds.members.read',
     ];
+
+    // State-Parameter für zusätzliche Daten wie return_to nach Avatar-Resync
+    $state_parameters = [];
+    if (isset($_GET['action']) && $_GET['action'] === 'resync_avatar' && isset($_GET['return_to'])) {
+        $state_parameters['action'] = 'resync_avatar';
+        $state_parameters['return_to'] = basename(filter_var($_GET['return_to'], FILTER_SANITIZE_URL)); // Nur Dateiname
+    }
+    if (!empty($state_parameters)) {
+        $params['state'] = base64_encode(json_encode($state_parameters)); // State sicher kodieren
+    }
+
     $discord_oauth_url = 'https://discord.com/api/oauth2/authorize?' . http_build_query($params);
 }
 

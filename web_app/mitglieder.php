@@ -41,11 +41,17 @@ $members = getAllUsersForList($pdo);
                 <div class="member-list-item card">
                     <div class="member-avatar-container">
                         <?php
-                        $discord_avatar = $member['discord_avatar_url'];
-                        $avatar_url = ($discord_avatar !== null && $discord_avatar !== '') ? htmlspecialchars($discord_avatar) : BASE_URL . '/assets/images/default_avatar.png';
-                        // Fallback, falls default_avatar.png nicht existiert (CSS könnte auch ein Default setzen)
-                        // if (!empty($member['discord_avatar_url'])) {
-                        //    $avatar_url = htmlspecialchars($member['discord_avatar_url']);
+                        $display_avatar_url_member = BASE_URL . '/assets/images/default_avatar.png'; // Default
+                        if (!empty($member['custom_avatar_path']) && file_exists(__DIR__ . '/' . $member['custom_avatar_path'])) {
+                            $display_avatar_url_member = BASE_URL . '/' . htmlspecialchars($member['custom_avatar_path']) . '?v=' . time();
+                        } elseif (!empty($member['discord_avatar_url'])) {
+                            $display_avatar_url_member = htmlspecialchars($member['discord_avatar_url']);
+                        }
+                        ?>
+                        <img src="<?php echo $display_avatar_url_member; ?>" alt="Avatar von <?php echo htmlspecialchars($member['discord_username']); ?>" class="member-avatar">
+                    </div>
+                    <div class="member-info">
+                        <h4><?php echo htmlspecialchars($member['discord_username']); ?></h4>
                         // } else {
                         //    $default_avatar_path = __DIR__ . '/assets/images/default_avatar.png';
                         //    if (file_exists($default_avatar_path)) {

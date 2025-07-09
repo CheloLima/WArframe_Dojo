@@ -145,11 +145,27 @@ if ($bot_status === "SUCCESS") {
     $_SESSION['discord_id'] = $user['discord_id'];
     $_SESSION['discord_username'] = $user['discord_username'];
     $_SESSION['discord_avatar_url'] = $user['discord_avatar_url'];
+    $_SESSION['custom_avatar_path'] = $user['custom_avatar_path']; // NEU: Custom Avatar Path in Session
     $_SESSION['isAdmin'] = (bool)$user['isAdmin'];
     $_SESSION['last_activity'] = time(); // Aktivität aktualisieren
 
-    // Prüfen, ob Warframe IGN ausgefüllt ist
-    if (empty($user['warframe_ign'])) {
+    // State-Parameter auswerten für spezielle Weiterleitungen
+    $final_redirect_url = '';
+    if (isset($_GET['state'])) {
+        $decoded_state = json_decode(base64_decode($_GET['state']), true);
+        if (is_array($decoded_state) && isset($decoded_state['action']) && $decoded_state['action'] === 'resync_avatar' && isset($decoded_state['return_to'])) {
+            $return_page = basename(filter_var($decoded_state['return_to'], FILTER_SANITIZE_URL));
+            if (in_array($return_page, ['dashboard.php', 'profil.php'])) { // Whitelist für return_to Seiten
+                $final_redirect_url = BASE_URL . '/' . $return_page;
+                 $_SESSION['global_message'] = "Discord-Avatar erfolgreich synchronisiert!"; // Überschreibt normale Login-Nachricht
+                 $_SESSION['global_message_type'] = "success";
+            }
+        }
+    }
+
+    if (!empty($final_redirect_url)) {
+        header("Location: " . $final_redirect_url);
+    } elseif (empty($user['warframe_ign'])) {
         $_SESSION['global_message'] = "Willkommen! Bitte vervollständige dein Profil mit deinem Warframe In-Game Namen (IGN).";
         $_SESSION['global_message_type'] = "info";
         header("Location: " . BASE_URL . "/profil-vervollstaendigen.php");

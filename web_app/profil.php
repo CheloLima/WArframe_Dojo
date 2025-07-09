@@ -90,9 +90,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_comment'])) {
 // Page Title dynamisch setzen
 define('PAGE_TITLE_DYNAMIC', 'Profil von ' . htmlspecialchars($profile_user['discord_username']));
 
-// Avatar URL
-$discord_profile_avatar = $profile_user['discord_avatar_url'];
-$profile_avatar_url = ($discord_profile_avatar !== null && $discord_profile_avatar !== '') ? htmlspecialchars($discord_profile_avatar) : BASE_URL . '/assets/images/default_avatar.png';
+// Avatar URL Logik
+$display_profile_avatar_url = BASE_URL . '/assets/images/default_avatar.png'; // Default
+if (!empty($profile_user['custom_avatar_path']) && file_exists(__DIR__ . '/' . $profile_user['custom_avatar_path'])) {
+    $display_profile_avatar_url = BASE_URL . '/' . htmlspecialchars($profile_user['custom_avatar_path']) . '?v=' . time();
+} elseif (!empty($profile_user['discord_avatar_url'])) {
+    $display_profile_avatar_url = htmlspecialchars($profile_user['discord_avatar_url']);
+}
 
 ?>
 <!-- Dynamischer Seitentitel im Header anpassen -->
@@ -217,12 +221,19 @@ $profile_avatar_url = ($discord_profile_avatar !== null && $discord_profile_avat
         <?php else: ?>
             <?php foreach ($comments as $comment): ?>
                 <?php
-                $comment_author_avatar_src = $comment['author_avatar_url'];
-                $comment_avatar_display_url = ($comment_author_avatar_src !== null && $comment_author_avatar_src !== '') ? htmlspecialchars($comment_author_avatar_src) : BASE_URL . '/assets/images/default_avatar.png';
+                // Avatar-Logik für Kommentatoren
+                // Wichtig: $comment enthält 'author_custom_avatar_path' und 'author_discord_avatar_url'
+                // Diese müssen in getProfileComments() in user_functions.php hinzugefügt werden.
+                $comment_author_display_url = BASE_URL . '/assets/images/default_avatar.png'; // Default
+                if (!empty($comment['author_custom_avatar_path']) && file_exists(__DIR__ . '/' . $comment['author_custom_avatar_path'])) {
+                    $comment_author_display_url = BASE_URL . '/' . htmlspecialchars($comment['author_custom_avatar_path']) . '?v=' . time();
+                } elseif (!empty($comment['author_discord_avatar_url'])) {
+                    $comment_author_display_url = htmlspecialchars($comment['author_discord_avatar_url']);
+                }
                 ?>
                 <div class="comment card">
                     <div class="comment-header">
-                        <img src="<?php echo $comment_avatar_display_url; ?>" alt="Avatar von <?php echo htmlspecialchars($comment['author_username']); ?>" class="comment-author-avatar">
+                        <img src="<?php echo $comment_author_display_url; ?>" alt="Avatar von <?php echo htmlspecialchars($comment['author_username']); ?>" class="comment-author-avatar">
                         <strong class="comment-author">
                             <a href="profil.php?id=<?php echo htmlspecialchars($comment['author_discord_id']); ?>">
                                 <?php echo htmlspecialchars($comment['author_username']); ?>
