@@ -1,0 +1,37 @@
+[Unit]
+Description=Echo Sol Dojo Discord Verification Bot
+After=network.target
+
+[Service]
+# Ersetze 'dein_benutzername' mit dem tatsächlichen Benutzernamen, unter dem der Bot laufen soll.
+# Dieser Benutzer sollte Zugriff auf das Bot-Verzeichnis und die venv haben.
+User=dein_benutzername
+
+# Ersetze '/pfad/zum/discord_bot' mit dem vollständigen, absoluten Pfad zum 'discord_bot'-Verzeichnis auf deinem Server.
+# Beispiel: /home/dein_benutzername/echosoldojo_community_platform/discord_bot
+WorkingDirectory=/pfad/zum/discord_bot
+
+# Der Befehl zum Starten des Bots. Stellt sicher, dass die Pfade korrekt sind.
+# 1. Pfad zur Python-Executable in der virtuellen Umgebung.
+# 2. Pfad zur Uvicorn-Executable in der virtuellen Umgebung.
+# 3. 'main:app' verweist auf die FastAPI-Instanz 'app' in der Datei 'main.py'.
+# 4. '--host 0.0.0.0' lässt den Bot auf allen Netzwerkschnittstellen lauschen.
+# 5. '--port 8000' (oder ein anderer Port deiner Wahl, stelle sicher, dass er frei ist und ggf. in der Firewall geöffnet).
+ExecStart=/pfad/zum/discord_bot/venv/bin/python /pfad/zum/discord_bot/venv/bin/uvicorn main:app --host 0.0.0.0 --port 8000
+
+# Stellt sicher, dass der Bot bei Fehlern oder nach einem Neustart automatisch neu gestartet wird.
+Restart=always
+
+# (Optional, aber empfohlen) Pfad zur .env-Datei, falls Uvicorn/FastAPI sie nicht automatisch aus dem WorkingDirectory lädt.
+# FastAPI mit python-dotenv sollte sie aus dem WorkingDirectory laden, wenn load_dotenv() in main.py aufgerufen wird.
+# EnvironmentFile=/pfad/zum/discord_bot/.env
+
+# (Optional) Standard Output und Error Log konfigurieren
+# StandardOutput=append:/var/log/echosoldojo_bot/out.log
+# StandardError=append:/var/log/echosoldojo_bot/err.log
+# Wenn du dies verwendest, erstelle das Verzeichnis /var/log/echosoldojo_bot und gib dem User Schreibrechte.
+# sudo mkdir /var/log/echosoldojo_bot
+# sudo chown dein_benutzername:dein_benutzername /var/log/echosoldojo_bot
+
+[Install]
+WantedBy=multi-user.target

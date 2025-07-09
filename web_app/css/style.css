@@ -1,0 +1,713 @@
+@import url('https://fonts.googleapis.com/css2?family=Exo+2:ital,wght@0,100..900;1,100..900&family=Orbitron:wght@400..900&display=swap');
+
+/* --- Globale Resets und Basis-Styling --- */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    font-size: 16px; /* Basis-Schriftgröße */
+    line-height: 1.6;
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: 'Exo 2', 'Arial', sans-serif; /* Futuristischere Schriftart */
+    background-color: var(--color-background-dark);
+    color: var(--color-text-primary);
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.container {
+    width: 90%;
+    max-width: 1200px; /* Maximale Breite für den Inhalt */
+    margin: 0 auto; /* Zentrierung */
+    padding: 0 1rem;
+}
+
+/* --- Akzentfarben (Warframe inspiriert) --- */
+:root {
+    --color-primary-accent: #6AFF00; /* Giftgrün */
+    --color-primary-accent-rgb: 106, 255, 0; /* Giftgrün als RGB-Werte */
+    --color-secondary-accent: #00BFFF; /* Heller Blauton, ähnlich wie Warframe UI Energie */
+    --color-background-dark: #121212;
+    --color-background-medium: #1E1E1E; /* Etwas helleres Dunkelgrau für Karten, etc. */
+    --color-background-light: #2C2C2C;
+    --color-text-primary: #E0E0E0;
+    --color-text-secondary: #B0B0B0;
+    --color-border: #3A3A3A;
+    --color-border-glow: rgba(106, 255, 0, 0.5); /* Für leuchtende Ränder */
+    --color-error: #FF4C4C;
+    --color-success: #4CAF50;
+    --color-info: #2196F3;
+    --color-warning: #FFC107;
+    --glow-shadow-primary: 0 0 8px var(--color-primary-accent), 0 0 12px var(--color-primary-accent), 0 0 16px rgba(106, 255, 0, 0.7);
+    --glow-shadow-secondary: 0 0 8px var(--color-secondary-accent), 0 0 12px var(--color-secondary-accent), 0 0 16px rgba(0, 191, 255, 0.7);
+}
+
+/* --- Typografie --- */
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Orbitron', 'Exo 2', sans-serif; /* Futuristischere Schriftart */
+    color: var(--color-primary-accent);
+    margin-bottom: 0.75em;
+    line-height: 1.2;
+    text-transform: uppercase; /* Warframe UI oft in Großbuchstaben */
+    letter-spacing: 1.5px; /* Etwas mehr spacing */
+    text-shadow: 0 0 3px rgba(106, 255, 0, 0.5); /* Subtiler Glow für Überschriften */
+}
+
+h1 { font-size: 2.8rem; letter-spacing: 2px;} /* Größer und mehr spacing für H1 */
+h2 { font-size: 2.2rem; }
+h3 { font-size: 1.85rem; }
+h4 { font-size: 1.6rem; }
+
+p {
+    margin-bottom: 1.2em; /* Etwas mehr Abstand für Absätze */
+    color: var(--color-text-secondary); /* Standard Text etwas gedämpfter */
+}
+main.site-content p, main.site-content li { /* Hellerer Text im Hauptinhalt */
+    color: var(--color-text-primary);
+}
+
+
+a {
+    color: var(--color-secondary-accent);
+    text-decoration: none;
+    transition: color 0.3s ease, text-shadow 0.3s ease, filter 0.3s ease;
+}
+
+a:hover, a:focus {
+    color: var(--color-primary-accent);
+    text-shadow: var(--glow-shadow-primary);
+    outline: none;
+    filter: brightness(1.2);
+}
+
+/* --- Header und Navigation --- */
+header.site-header {
+    background: linear-gradient(to bottom, var(--color-background-medium), rgba(30, 30, 30, 0.8));
+    padding: 1rem 0;
+    border-bottom: 3px solid var(--color-primary-accent);
+    box-shadow: 0 2px 15px rgba(106, 255, 0, 0.2); /* Leichter grüner Schein */
+    position: sticky; /* Sticky Header */
+    top: 0;
+    z-index: 1000;
+    backdrop-filter: blur(5px); /* Milchglas-Effekt */
+}
+
+header.site-header .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap; /* Für kleinere Bildschirme */
+}
+
+.logo-text {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 2rem; /* Etwas größer */
+    color: var(--color-primary-accent);
+    text-transform: uppercase;
+    letter-spacing: 2.5px; /* Mehr Spacing */
+    text-shadow: var(--glow-shadow-primary);
+}
+.logo-text:hover {
+    filter: brightness(1.3);
+}
+
+nav.main-navigation ul {
+    list-style: none;
+    display: flex;
+    gap: 1.8rem; /* Etwas mehr Abstand */
+}
+
+nav.main-navigation a {
+    color: var(--color-text-secondary);
+    font-weight: bold;
+    font-family: 'Orbitron', sans-serif; /* Auch für Navi-Links */
+    text-transform: uppercase;
+    padding: 0.6em 0.2em; /* Mehr vertikales Padding, weniger horizontales, da Linie es ausgleicht */
+    position: relative;
+    letter-spacing: 1px;
+    transition: color 0.3s ease, text-shadow 0.3s ease;
+}
+
+nav.main-navigation a::after { /* Linie unter dem Link */
+    content: '';
+    position: absolute;
+    bottom: 0; /* Direkt unter dem Text */
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 3px; /* Dickere Linie */
+    background-color: var(--color-primary-accent);
+    box-shadow: var(--glow-shadow-primary);
+    transition: width 0.4s ease;
+}
+
+nav.main-navigation a:hover::after,
+nav.main-navigation a.active::after {
+    width: 100%;
+}
+
+nav.main-navigation a:hover,
+nav.main-navigation a.active {
+    color: var(--color-primary-accent);
+    text-shadow: var(--glow-shadow-primary);
+}
+
+/* --- Hauptinhalt --- */
+main.site-content {
+    flex-grow: 1; /* Wichtig für Sticky Footer */
+    padding: 2.5rem 0; /* Mehr Padding */
+    background:
+        /* Subtiles Rauschen für Textur */
+        radial-gradient(ellipse at center, rgba(30,30,30,0.1) 0%,rgba(18,18,18,0.3) 100%),
+        /* Hexagonales Muster (vereinfacht als Linien) */
+        /* linear-gradient(135deg, rgba(40,40,40,0.05) 25%, transparent 25%),
+        linear-gradient(225deg, rgba(40,40,40,0.05) 25%, transparent 25%),
+        linear-gradient(45deg, rgba(40,40,40,0.05) 25%, transparent 25%),
+        linear-gradient(315deg, rgba(40,40,40,0.05) 25%, var(--color-background-dark) 25%);
+    background-size: 40px 40px; */
+    var(--color-background-dark); /* Fallback */
+}
+
+/* --- Footer --- */
+footer.site-footer {
+    background: var(--color-background-medium);
+    color: var(--color-text-secondary);
+    padding: 2rem 0; /* Mehr Padding */
+    text-align: center;
+    font-size: 0.9rem;
+    border-top: 2px solid var(--color-border);
+    box-shadow: 0 -2px 10px rgba(0,0,0,0.3);
+}
+
+footer.site-footer a {
+    color: var(--color-secondary-accent);
+}
+footer.site-footer a:hover {
+    color: var(--color-primary-accent);
+    text-shadow: var(--glow-shadow-primary);
+}
+
+
+/* --- Formulare --- */
+form {
+    background-color: rgba(30, 30, 30, 0.8); /* Leicht transparent */
+    backdrop-filter: blur(3px);
+    padding: 2rem; /* Mehr Padding */
+    border: 1px solid var(--color-border-glow); /* Leuchtender Rand */
+    border-radius: 8px; /* Größerer Radius */
+    box-shadow: 0 0 20px rgba(106, 255, 0, 0.1); /* Subtiler grüner Schein */
+    /* Clip-Path für futuristische Ecken (optional, kann Layout beeinflussen) */
+    /* clip-path: polygon(0 10px, 10px 0, calc(100% - 10px) 0, 100% 10px, 100% calc(100% - 10px), calc(100% - 10px) 100%, 10px 100%, 0 calc(100% - 10px)); */
+}
+
+form fieldset {
+    border: 1px solid var(--color-border);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    border-radius: 6px;
+    /* clip-path: polygon(0 8px, 8px 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 0 100%); */ /* Abgeschnittene obere Ecke */
+}
+form legend {
+    padding: 0 0.8em;
+    color: var(--color-primary-accent);
+    font-family: 'Orbitron', sans-serif;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+form label {
+    display: block;
+    margin-bottom: 0.6rem;
+    color: var(--color-text-secondary);
+    font-weight: bold;
+    font-size: 0.95rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+form input[type="text"],
+form input[type="email"],
+form input[type="password"],
+form input[type="number"],
+form input[type="url"],
+form textarea,
+form select {
+    width: 100%;
+    padding: 0.85rem 1rem; /* Mehr Padding */
+    margin-bottom: 1.2rem;
+    background-color: rgba(18, 18, 18, 0.7); /* Dunkler und leicht transparent */
+    border: 1px solid var(--color-border);
+    color: var(--color-text-primary);
+    border-radius: 4px; /* Kleinerer Radius für schärfere Kanten */
+    transition: border-color 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
+    font-family: 'Exo 2', sans-serif;
+    font-size: 1rem;
+}
+form input:-webkit-autofill, /* Autofill Style anpassen */
+form textarea:-webkit-autofill {
+    -webkit-box-shadow: 0 0 0 30px var(--color-background-light) inset !important;
+    -webkit-text-fill-color: var(--color-text-primary) !important;
+    caret-color: var(--color-text-primary) !important; /* Cursor Farbe */
+}
+
+
+form input[type="text"]:focus,
+form input[type="email"]:focus,
+form input[type="password"]:focus,
+form input[type="number"]:focus,
+form input[type="url"]:focus,
+form textarea:focus,
+form select:focus {
+    outline: none;
+    border-color: var(--color-primary-accent);
+    background-color: rgba(30, 30, 30, 0.9); /* Etwas heller bei Fokus */
+    box-shadow: 0 0 8px var(--color-primary-accent);
+}
+
+form button,
+input[type="submit"],
+.button, .btn {
+    display: inline-block;
+    background: linear-gradient(to right, var(--color-primary-accent), #58dd00); /* Farbverlauf für Buttons */
+    color: var(--color-background-dark);
+    font-family: 'Orbitron', sans-serif;
+    font-weight: bold;
+    text-transform: uppercase;
+    padding: 0.85rem 1.8rem; /* Angepasstes Padding */
+    border: none;
+    /* border-top: 1px solid rgba(255,255,255,0.2); */ /* Leichter 3D Effekt */
+    /* border-left: 1px solid rgba(255,255,255,0.1); */
+    border-radius: 4px; /* Schärfere Kanten */
+    cursor: pointer;
+    transition: transform 0.2s ease-out, box-shadow 0.3s ease-out, filter 0.3s ease-out;
+    letter-spacing: 1.2px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.1); /* Inset für leichten Glanz */
+    position: relative;
+    overflow: hidden; /* Für Pseudo-Elemente */
+}
+form button::before, /* Glanz-Effekt */
+input[type="submit"]::before,
+.button::before, .btn::before {
+    content: "";
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 60%);
+    transform: scale(0);
+    transition: transform 0.5s ease;
+    pointer-events: none;
+}
+
+form button:hover::before,
+input[type="submit"]:hover::before,
+.button:hover::before, .btn:hover::before {
+    transform: scale(2);
+}
+
+
+form button:hover,
+input[type="submit"]:hover,
+.button:hover, .btn:hover {
+    /* background-color: #58dd00; */ /* Wird durch Gradient ersetzt */
+    transform: translateY(-3px) scale(1.02); /* Leichter Zoom-Effekt */
+    box-shadow: 0 5px 15px rgba(106, 255, 0, 0.4), inset 0 1px 0 rgba(255,255,255,0.1);
+    filter: brightness(1.1);
+}
+
+/* --- Buttons für andere Aktionen --- */
+.button-secondary, .btn-secondary {
+    background: linear-gradient(to right, var(--color-secondary-accent), #00a0dd);
+    color: var(--color-background-dark);
+}
+.button-secondary:hover, .btn-secondary:hover {
+    /* background-color: #00a0dd; */
+    box-shadow: 0 5px 15px rgba(0, 191, 255, 0.4), inset 0 1px 0 rgba(255,255,255,0.1);
+}
+
+.button-danger, .btn-danger {
+    background: linear-gradient(to right, var(--color-error), #dd3838);
+    color: var(--color-text-primary); /* Heller Text auf dunklem Rot */
+}
+.button-danger:hover, .btn-danger:hover {
+    /* background-color: #dd3838; */
+    box-shadow: 0 5px 15px rgba(255, 76, 76, 0.4), inset 0 1px 0 rgba(255,255,255,0.1);
+}
+
+
+/* --- Tabellen --- */
+table {
+    width: 100%;
+    border-collapse: separate; /* Wichtig für border-spacing und abgerundete Ecken */
+    border-spacing: 0;
+    margin-bottom: 2rem; /* Mehr Abstand */
+    background-color: rgba(30, 30, 30, 0.7);
+    backdrop-filter: blur(3px);
+    border: 1px solid var(--color-border);
+    border-radius: 6px; /* Abgerundete Ecken für die Tabelle */
+    box-shadow: 0 0 15px rgba(0,0,0,0.4);
+    overflow: hidden; /* Damit border-radius bei th/td greift */
+}
+
+table th, table td {
+    padding: 0.9rem 1.2rem; /* Mehr Padding */
+    text-align: left;
+    border-bottom: 1px solid var(--color-border); /* Subtilere Linien */
+}
+table tr:last-child td {
+    border-bottom: none; /* Keine Linie bei der letzten Zeile */
+}
+
+table th {
+    background-color: rgba(44, 44, 44, 0.8); /* Etwas heller für Header */
+    color: var(--color-primary-accent);
+    font-family: 'Orbitron', sans-serif;
+    text-transform: uppercase;
+    font-weight: bold;
+    letter-spacing: 1px;
+    border-bottom-width: 2px; /* Dickere Linie unter Header */
+    border-bottom-color: var(--color-border-glow);
+}
+
+table tr:hover td {
+    background-color: rgba(44, 44, 44, 0.9); /* Leichter Hover-Effekt für Zeilen */
+    color: var(--color-text-primary);
+}
+table td a { /* Links in Tabellen hervorheben */
+    font-weight: bold;
+}
+
+/* --- Karten/Boxen --- */
+.card {
+    background-color: rgba(30, 30, 30, 0.85); /* Leicht transparent */
+    backdrop-filter: blur(4px);
+    padding: 2rem; /* Mehr Padding */
+    border: 1px solid var(--color-border);
+    border-left: 4px solid var(--color-primary-accent); /* Akzentlinie links */
+    border-radius: 6px; /* Angepasster Radius */
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.card:hover {
+    /* transform: translateY(-3px); */
+    /* box-shadow: 0 6px 20px rgba(0,0,0,0.6); */
+}
+
+.card-header {
+    border-bottom: 1px solid var(--color-border-glow); /* Leuchtende Trennlinie */
+    padding-bottom: 1rem; /* Mehr Padding */
+    margin-bottom: 1.5rem; /* Mehr Abstand */
+}
+.card-header h2, .card-header h3 {
+    margin-bottom: 0;
+    text-shadow: var(--glow-shadow-primary);
+}
+
+/* --- Nachrichten / Alerts --- */
+.message {
+    padding: 1.2rem 1.8rem; /* Mehr Padding */
+    margin-bottom: 1.8rem;
+    border-radius: 4px; /* Schärfere Kanten */
+    border-width: 1px;
+    border-style: solid;
+    /* border-left-width: 5px; */ /* Akzentlinie links */
+    position: relative;
+    font-size: 0.95rem;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    /* Futuristic shape with clip-path */
+    /* clip-path: polygon(0 0, calc(100% - 15px) 0, 100% 15px, 100% 100%, 15px 100%, 0 calc(100% - 15px)); */
+}
+.message.global-message { /* Für Nachrichten oben auf der Seite */
+    margin-top: 1.5rem;
+}
+
+.message.error {
+    background-color: rgba(255, 76, 76, 0.15);
+    border-color: var(--color-error);
+    /* border-left-color: var(--color-error); */
+    color: #ff8a8a; /* Helleres Rot für Text */
+    text-shadow: 0 0 3px rgba(255,76,76,0.5);
+}
+.message.success {
+    background-color: rgba(76, 175, 80, 0.15);
+    border-color: var(--color-success);
+    /* border-left-color: var(--color-success); */
+    color: #8eff91; /* Helleres Grün für Text */
+    text-shadow: 0 0 3px rgba(76,175,80,0.5);
+}
+.message.info {
+    background-color: rgba(33, 150, 243, 0.15);
+    border-color: var(--color-info);
+    /* border-left-color: var(--color-info); */
+    color: #7cc4ff; /* Helleres Blau für Text */
+    text-shadow: 0 0 3px rgba(33,150,243,0.5);
+}
+.message.warning {
+    background-color: rgba(255, 193, 7, 0.15);
+    border-color: var(--color-warning);
+    /* border-left-color: var(--color-warning); */
+    color: #ffe082; /* Helleres Gelb für Text */
+    text-shadow: 0 0 3px rgba(255,193,7,0.5);
+}
+
+
+/* --- Spezifische Seiten-Stylings (Platzhalter) --- */
+
+/* Startseite (index.php) */
+.hero-section {
+    text-align: center;
+    padding: 4rem 1.5rem; /* Mehr Padding */
+    background:
+        linear-gradient(rgba(18,18,18,0.85), rgba(18,18,18,0.95)),
+        url('../assets/images/warframe_background.jpg'); /* Dunklerer Overlay */
+    background-size: cover;
+    background-position: center center; /* Zentriert */
+    border-bottom: 3px solid var(--color-primary-accent);
+    box-shadow: 0 5px 20px rgba(106, 255, 0, 0.2); /* Stärkerer Schein */
+    margin: -2.5rem 0 2.5rem 0; /* Lässt es in den Header überlappen, wenn Header sticky ist */
+    position: relative; /* Für Pseudo-Elemente */
+}
+/* Pseudo-Elemente für geometrische Akzente */
+.hero-section::before, .hero-section::after {
+    content: '';
+    position: absolute;
+    width: 100px;
+    height: 100px;
+    border: 2px solid var(--color-primary-accent);
+    opacity: 0.3;
+    pointer-events: none;
+}
+.hero-section::before { /* Oben links */
+    top: 20px; left: 20px;
+    clip-path: polygon(0 0, 100% 0, 0 100%); /* Dreieck */
+}
+.hero-section::after { /* Unten rechts */
+    bottom: 20px; right: 20px;
+    clip-path: polygon(100% 100%, 0 100%, 100% 0); /* Dreieck */
+}
+
+
+.hero-section h1 {
+    font-size: 3.5rem; /* Größer */
+    margin-bottom: 0.8rem;
+    color: var(--color-primary-accent);
+    text-shadow: var(--glow-shadow-primary), 0 0 20px rgba(106, 255, 0, 0.5); /* Stärkerer Glow */
+}
+.hero-section p {
+    font-size: 1.3rem; /* Größer */
+    color: var(--color-text-primary); /* Hellerer Text */
+    margin-bottom: 2.5rem;
+}
+.hero-section .btn-login {
+    padding: 1.2rem 3rem; /* Größerer Button */
+    font-size: 1.3rem;
+}
+.hero-section .btn-login img {
+    filter: drop-shadow(0 0 3px var(--color-background-dark)); /* Schatten für Logo auf Button */
+}
+
+/* Inhalt-Sektionen auf der Startseite */
+.content-section {
+    padding: 2rem;
+    margin-bottom: 2rem;
+    background-color: rgba(24,24,24,0.7);
+    border-radius: 6px;
+    border: 1px solid var(--color-border);
+}
+.content-section h2 {
+    border-bottom: 2px solid var(--color-border-glow);
+    padding-bottom: 0.5em;
+    display: inline-block; /* Damit Border nur so lang ist wie der Text */
+}
+.content-section ul {
+    list-style: none;
+    padding-left: 0;
+}
+.content-section ul li {
+    padding: 0.5em 0 0.5em 1.5em;
+    position: relative;
+    border-bottom: 1px dashed var(--color-border);
+}
+.content-section ul li:last-child {
+    border-bottom: none;
+}
+.content-section ul li::before { /* Futuristischer Bullet Point */
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%) rotate(45deg);
+    width: 8px;
+    height: 8px;
+    background-color: var(--color-primary-accent);
+    box-shadow: var(--glow-shadow-primary);
+}
+
+
+/* Mitgliederliste (mitglieder.php) */
+.member-list-item { /* Wird durch .member-list-item.card in der mitglieder.php spezifischen CSS ersetzt */
+    /* display: flex; */
+    /* align-items: center; */
+    /* background-color: var(--color-background-medium); */
+    /* padding: 1rem; */
+    /* margin-bottom: 1rem; */
+    /* border-radius: 4px; */
+    /* border: 1px solid var(--color-border); */
+    /* transition: transform 0.2s ease, box-shadow 0.2s ease; */
+}
+/* .member-list-item:hover { */
+    /* transform: translateY(-3px); */
+    /* box-shadow: 0 4px 12px rgba(0,0,0,0.5); */
+/* } */
+.member-avatar { /* Wird in mitglieder.php spezifisch gestylt */
+    /* width: 50px; */
+    /* height: 50px; */
+    /* border-radius: 50%; */
+    /* margin-right: 1rem; */
+    /* border: 2px solid var(--color-primary-accent); */
+}
+.member-info h4 { /* Wird in mitglieder.php spezifisch gestylt */
+    /* margin-bottom: 0.25rem; */
+}
+.member-info p { /* Wird in mitglieder.php spezifisch gestylt */
+    /* font-size: 0.9rem; */
+    /* color: var(--color-text-secondary); */
+    /* margin-bottom: 0; */
+}
+
+/* Profilseite (profil.php) */
+.profile-header { /* Wird in profil.php spezifisch gestylt */
+    /* display: flex; */
+    /* align-items: center; */
+    /* margin-bottom: 2rem; */
+}
+.profile-avatar { /* Wird in profil.php spezifisch gestylt */
+    /* width: 100px; */
+    /* height: 100px; */
+    /* border-radius: 50%; */
+    /* margin-right: 2rem; */
+    /* border: 3px solid var(--color-primary-accent); */
+}
+.profile-main-info h1 { /* Wird in profil.php spezifisch gestylt */
+    /* margin-bottom: 0.25rem; */
+}
+.profile-main-info .custom-title { /* Wird in profil.php spezifisch gestylt */
+    /* color: var(--color-secondary-accent); */
+    /* font-style: italic; */
+}
+.profile-details dl { /* Wird in profil.php spezifisch gestylt */
+    /* display: grid; */
+    /* grid-template-columns: auto 1fr; */ /* Label und Wert */
+    /* gap: 0.5rem 1rem; */
+}
+.profile-details dt { /* Wird in profil.php spezifisch gestylt */
+    /* font-weight: bold; */
+    /* color: var(--color-text-secondary); */
+}
+.profile-details dd { /* Wird in profil.php spezifisch gestylt */
+    /* margin-left: 0; */
+}
+
+/* Kommentare / Schwarzes Brett */
+.comments-section .comment { /* Wird in profil.php spezifisch gestylt */
+    /* border-bottom: 1px solid var(--color-border); */
+    /* padding: 1rem 0; */
+}
+/* .comments-section .comment:last-child { */
+    /* border-bottom: none; */
+/* } */
+.comment-author { /* Wird in profil.php spezifisch gestylt */
+    /* font-weight: bold; */
+    /* color: var(--color-primary-accent); */
+}
+.comment-date { /* Wird in profil.php spezifisch gestylt */
+    /* font-size: 0.8rem; */
+    /* color: var(--color-text-secondary); */
+    /* margin-left: 0.5rem; */
+}
+.comment-content { /* Wird in profil.php spezifisch gestylt */
+    /* margin-top: 0.5rem; */
+}
+
+
+/* --- Utility Klassen --- */
+.text-center { text-align: center; }
+.text-primary { color: var(--color-primary-accent) !important; } /* Wichtig, um andere Selektoren zu überschreiben */
+.text-secondary { color: var(--color-secondary-accent) !important; }
+.mt-1 { margin-top: 1rem !important; }
+.mt-2 { margin-top: 2rem !important; }
+.mb-1 { margin-bottom: 1rem !important; }
+.mb-2 { margin-bottom: 2rem !important; }
+.p-1 { padding: 1rem !important; }
+.p-2 { padding: 2rem !important; }
+.hidden { display: none !important; }
+
+
+/* --- Responsivität (Basis) --- */
+@media (max-width: 768px) {
+    h1 { font-size: 2.2rem; letter-spacing: 1.5px; } /* Angepasste Größen für Mobil */
+    h2 { font-size: 1.9rem; }
+    .hero-section h1 { font-size: 2.8rem; }
+
+    header.site-header .container {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    nav.main-navigation { width: 100%; }
+    nav.main-navigation ul {
+        flex-direction: column;
+        align-items: center;
+        gap: 0.8rem; /* Weniger Gap für mobile Navi */
+        width: 100%;
+    }
+    nav.main-navigation li { width: 100%; }
+    nav.main-navigation a {
+        padding: 0.8em; /* Mehr Klickfläche */
+        display: block; /* Für bessere Klickbarkeit */
+        text-align: center;
+        border-bottom: 1px solid var(--color-border); /* Trennlinien in mobiler Navi */
+    }
+    nav.main-navigation li:last-child a { border-bottom: none; }
+
+    nav.main-navigation a::after { /* Unterstrich für mobile Ansicht anpassen oder entfernen */
+        display: none; /* Kein Unterstrich, da aktive Links anders hervorgehoben werden */
+    }
+     nav.main-navigation a.active {
+        background-color: var(--color-primary-accent); /* Hintergrund für aktiven Link */
+        color: var(--color-background-dark);
+        text-shadow: none;
+        border-radius: 3px;
+    }
+
+    .profile-header { /* Wird in profil.php spezifisch gestylt und dort responsiv gemacht */
+        /* flex-direction: column; */
+        /* text-align: center; */
+    }
+    .profile-avatar { /* Wird in profil.php spezifisch gestylt */
+        /* margin-right: 0; */
+        /* margin-bottom: 1rem; */
+    }
+}
+
+/* Weitere futuristische Elemente könnten sein:
+- Hexagonale Muster (als SVG oder CSS) -> Teilweise im Main Content angedeutet
+- Glüheffekte (box-shadow, text-shadow) -> Eingebaut
+- Schräge Linien / asymmetrische Elemente -> Angedeutet mit clip-path (optional)
+- Animationen für Hover-Effekte oder beim Laden von Elementen -> Basis-Transitionen vorhanden
+- Verwendung von Icons (FontAwesome oder SVGs) -> Platzhalter in HTML
+*/
+#admin-page .card, #user-profile-page .card { /* Beispiel für seitenspezifische Anpassungen, falls nötig */
+    /* Spezifische Stile für Karten auf Admin- oder Profilseiten */
+}
