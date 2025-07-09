@@ -282,8 +282,8 @@ form button,
 input[type="submit"],
 .button, .btn {
     display: inline-block;
-    background: linear-gradient(to right, var(--color-primary-accent), hsl(from var(--color-primary-accent) h s calc(l - 10%))); /* Etwas dunklerer Verlaufsendpunkt */
-    color: var(--color-background-dark);
+    background: linear-gradient(to right, var(--color-primary-accent), hsl(from var(--color-primary-accent) h s calc(l - 15%))); /* Verlauf etwas stärker für mehr Tiefe */
+    color: var(--color-background-dark); /* Standard-Textfarbe für Buttons */
     font-family: 'Orbitron', sans-serif;
     font-weight: bold;
     text-transform: uppercase;
@@ -329,8 +329,8 @@ input[type="submit"]:hover,
 
 /* --- Buttons für andere Aktionen --- */
 .button-secondary, .btn-secondary {
-    background: linear-gradient(to right, var(--color-secondary-accent), hsl(from var(--color-secondary-accent) h s calc(l - 10%)));
-    color: var(--color-background-dark);
+    background: linear-gradient(to right, var(--color-secondary-accent), hsl(from var(--color-secondary-accent) h s calc(l - 15%))); /* Verlauf angepasst */
+    color: var(--color-background-dark); /* Textfarbe konsistent mit primären Buttons */
 }
 .button-secondary:hover, .btn-secondary:hover {
     box-shadow: 0 3px 10px rgba(var(--color-secondary-accent-rgb, 0, 191, 255), 0.25), inset 0 1px 0 rgba(255,255,255,0.05);
