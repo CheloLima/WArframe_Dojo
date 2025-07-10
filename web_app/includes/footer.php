@@ -2,7 +2,17 @@
     </main> <!-- Ende .site-content -->
 
     <footer class="site-footer">
-        <!-- Theme-Switcher-Container wurde hier entfernt -->
+        <div class="theme-switcher-container"> <!-- Wieder eingefügt -->
+            <label for="theme-select" style="display:none;">Farbschema wählen:</label>
+            <div id="theme-color-buttons">
+                <button type="button" class="theme-button" data-color="#6AFF00" data-rgb="106,255,0" style="background-color:#6AFF00;" aria-label="Grünes Thema"></button>
+                <button type="button" class="theme-button" data-color="#e602c7" data-rgb="230,2,199" style="background-color:#e602c7;" aria-label="Magenta Thema"></button>
+                <button type="button" class="theme-button" data-color="#00FFFF" data-rgb="0,255,255" style="background-color:#00FFFF;" aria-label="Cyan Thema"></button>
+                <button type="button" class="theme-button" data-color="#9400D3" data-rgb="148,0,211" style="background-color:#9400D3;" aria-label="Violettes Thema"></button>
+                <button type="button" class="theme-button" data-color="#FF4C4C" data-rgb="255,76,76" style="background-color:#FF4C4C;" aria-label="Rotes Thema"></button>
+                <button type="button" class="theme-button" data-color="#FFD700" data-rgb="255,215,0" style="background-color:#FFD700;" aria-label="Gold Thema"></button>
+            </div>
+        </div>
         <div class="container footer-credits">
             <p>Version: 6.9-Echo | &copy; <?php echo date("Y"); ?> <?php echo defined('SITE_NAME') ? SITE_NAME : 'Endo Reserve Bank'; ?>.</p>
             <p>Made with ♥️ in Peru (🇵🇪), Lima for the World & The Origin System!</p>
