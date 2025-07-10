@@ -1,4 +1,8 @@
 <?php
+// Temporäres Fehler-Reporting für die Diagnose
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
 define('PAGE_TITLE', 'Dashboard');
 require_once __DIR__ . '/includes/header.php'; // Session, $is_logged_in
 require_once __DIR__ . '/includes/db.php';     // $pdo

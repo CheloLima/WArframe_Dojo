@@ -1,5 +1,4 @@
 <?php
-<?php
 // Temporäres Fehler-Reporting für die Diagnose des 500er Fehlers
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
@@ -86,34 +85,4 @@ if (isset($_GET['action']) && $_GET['action'] === 'resync_avatar' && isset($_GET
 header("Location: " . $redirect_target);
 exit; // Wichtig, um sicherzustellen, dass nach der Weiterleitung kein weiterer Code ausgeführt wird.
 // PHP End-Tag entfernt
-
-// Falls Cookies für die Session verwendet werden (Standard), das Session-Cookie löschen.
-// Hinweis: Dies zerstört die Session, nicht nur die Session-Daten!
-if (ini_get("session.use_cookies")) {
-    $params = session_get_cookie_params();
-    setcookie(session_name(), '', time() - 42000,
-        $params["path"], $params["domain"],
-        $params["secure"], $params["httponly"]
-    );
-}
-
-// Zum Schluss die Session zerstören.
-session_destroy();
-
-// Lade die Basiskonfiguration für BASE_URL
-// Normalerweise durch header.php, aber da wir hier schon die Session zerstört haben,
-// und header.php ggf. versucht, auf Session-Daten zuzugreifen, laden wir es manuell, falls nötig.
-if (!defined('BASE_URL')) {
-    if (file_exists(__DIR__ . '/config.php')) {
-        require_once __DIR__ . '/config.php';
-    } else {
-        // Fallback, falls config.php nicht existiert
-        define('BASE_URL', '.'); // Relative URL als Fallback
-    }
-}
-
-// Weiterleitung zur Startseite mit einer Erfolgsmeldung
-// Die Erfolgsmeldung wird per GET-Parameter übergeben, da die Session zerstört ist.
-header("Location: " . BASE_URL . "/index.php?logout_success=1");
-exit; // Wichtig, um sicherzustellen, dass nach der Weiterleitung kein weiterer Code ausgeführt wird.
-?>
+// Duplizierter Code wurde entfernt. Der obere Teil der Datei enthält bereits die korrekte Logik.
