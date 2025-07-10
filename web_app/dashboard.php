@@ -52,6 +52,9 @@ $errors = [];
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
     // Avatar-Verarbeitung entfernt
 
+    // Ausgewählte Syndikate abrufen
+    $selected_syndicates = $_POST['syndicates'] ?? []; // Ist ein Array von Namen
+
     // Formulardaten für Profil abrufen und bereinigen
     $warframe_ign_form = trim($_POST['warframe_ign'] ?? '');
     $about_me_form = trim($_POST['about_me'] ?? '');
@@ -95,8 +98,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
             // 'custom_avatar_path' => $custom_avatar_path_to_db // Entfernt
         ];
 
-        if (empty($errors) && updateUserProfile($pdo, $_SESSION['discord_id'], $data_to_update)) {
-            $_SESSION['global_message'] = "Profil erfolgreich aktualisiert!";
+        $profile_update_success = updateUserProfile($pdo, $_SESSION['discord_id'], $data_to_update);
+        $syndicate_update_success = updateUserSyndicates($pdo, $_SESSION['discord_id'], $selected_syndicates);
+
+        if (empty($errors) && $profile_update_success && $syndicate_update_success) {
+            $_SESSION['global_message'] = "Profil und Syndikate erfolgreich aktualisiert!";
             $_SESSION['global_message_type'] = "success";
             // Daten neu laden für die Anzeige im Formular und auf der Seite
             $user = getUserByDiscordId($pdo, $_SESSION['discord_id']);
@@ -285,6 +291,32 @@ if(isset($_GET['profile_updated']) && $_GET['profile_updated'] == '1' && !isset(
                 </div>
             </fieldset>
 
+            <fieldset>
+                <legend>Meine Syndikate</legend>
+                <p><small>Wähle die Syndikate, für die du primär Ruf sammelst oder die du unterstützen möchtest.</small></p>
+                <div class="syndicate-checkbox-group">
+                    <?php
+                    $user_syndicates_names = [];
+                    if (isset($user['discord_id'])) { // Sicherstellen, dass $user existiert
+                        $current_user_syndicates = getUserSyndicates($pdo, $user['discord_id']);
+                        foreach ($current_user_syndicates as $syn) {
+                            $user_syndicates_names[] = $syn['syndicate_name'];
+                        }
+                    }
+
+                    if (defined('WARFRAME_SYNDICATES') && is_array(WARFRAME_SYNDICATES)) {
+                        foreach (WARFRAME_SYNDICATES as $name => $color) {
+                            $checked = in_array($name, $user_syndicates_names) ? 'checked' : '';
+                            echo '<div class="checkbox-item">';
+                            echo '<input type="checkbox" name="syndicates[]" id="syndicate_'.md5($name).'" value="'.htmlspecialchars($name).'" '.$checked.'>';
+                            echo '<label for="syndicate_'.md5($name).'" style="color:'.htmlspecialchars($color).'; font-weight:bold;">'.htmlspecialchars($name).'</label>';
+                            echo '</div>';
+                        }
+                    }
+                    ?>
+                </div>
+            </fieldset>
+
             <button type="submit" class="button">Profil aktualisieren</button>
         </form>
     </section>
@@ -330,6 +362,25 @@ if(isset($_GET['profile_updated']) && $_GET['profile_updated'] == '1' && !isset(
     font-weight: bold;
     color: var(--color-text-secondary);
     margin-bottom: 0.5rem;
+}
+.syndicate-checkbox-group {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+.syndicate-checkbox-group .checkbox-item {
+    display: flex;
+    align-items: center;
+}
+.syndicate-checkbox-group input[type="checkbox"] {
+    margin-right: 0.8em; /* Mehr Platz für besseres Styling */
+}
+.syndicate-checkbox-group label {
+    font-weight: normal; /* Standard-Label-Gewichtung für Checkboxen */
+    text-transform: none; /* Kein Uppercase für Syndikatsnamen */
+    font-size: 1rem;
+    /* Die Farbe wird inline gesetzt */
 }
 
 

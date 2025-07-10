@@ -542,6 +542,57 @@ function getUserSyndicates(PDO $pdo, string $discord_id): array {
 
 // Weitere Funktionen für Syndikate (Hinzufügen, Löschen durch Admin) könnten hier folgen.
 
+// --- Syndikat Konstanten und Funktionen ---
+define('WARFRAME_SYNDICATES', [
+    'Steel Meridian' => '#781d1d',
+    'Arbiters of Hexis' => '#1e2d38',
+    'Cephalon Suda' => '#1e3d5a',
+    'The Perrin Sequence' => '#2a4e8d',
+    'Red Veil' => '#ff0000',
+    'New Loka' => '#006400'
+]);
+
+/**
+ * Aktualisiert die Syndikatszugehörigkeiten eines Benutzers.
+ * Löscht alte Einträge und fügt die neu ausgewählten hinzu.
+ * @param PDO $pdo
+ * @param string $discord_id
+ * @param array $selected_syndicates_names Array der Namen der ausgewählten Syndikate.
+ * @return bool True bei Erfolg, False bei Fehler.
+ */
+function updateUserSyndicates(PDO $pdo, string $discord_id, array $selected_syndicates_names): bool {
+    try {
+        $pdo->beginTransaction();
+
+        // 1. Alte Syndikate für den User löschen
+        $stmt_delete = $pdo->prepare("DELETE FROM user_syndicates WHERE user_discord_id = :discord_id");
+        $stmt_delete->bindParam(':discord_id', $discord_id, PDO::PARAM_STR);
+        $stmt_delete->execute();
+
+        // 2. Neue Syndikate einfügen
+        if (!empty($selected_syndicates_names)) {
+            $sql_insert = "INSERT INTO user_syndicates (user_discord_id, syndicate_name, color_hex) VALUES (:user_discord_id, :syndicate_name, :color_hex)";
+            $stmt_insert = $pdo->prepare($sql_insert);
+
+            foreach ($selected_syndicates_names as $syndicate_name) {
+                if (array_key_exists($syndicate_name, WARFRAME_SYNDICATES)) {
+                    $color_hex = WARFRAME_SYNDICATES[$syndicate_name];
+                    $stmt_insert->bindParam(':user_discord_id', $discord_id, PDO::PARAM_STR);
+                    $stmt_insert->bindParam(':syndicate_name', $syndicate_name, PDO::PARAM_STR);
+                    $stmt_insert->bindParam(':color_hex', $color_hex, PDO::PARAM_STR);
+                    $stmt_insert->execute();
+                }
+            }
+        }
+        $pdo->commit();
+        return true;
+    } catch (PDOException $e) {
+        $pdo->rollBack();
+        error_log("Fehler bei updateUserSyndicates: " . $e->getMessage());
+        return false;
+    }
+}
+
 
 // --- Changelog Funktionen ---
 
