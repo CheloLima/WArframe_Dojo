@@ -272,6 +272,7 @@ Die PHP-Anwendung benötigt eine Konfigurationsdatei (`config.php`), um Datenban
     *   **`BASE_URL`:** Die Haupt-URL deiner Webseite (Beispiel: `https://dojo.chelo.lat` - Domain anpassen!). Ohne Slash am Ende.
     *   **`DEBUG_MODE`:** Setze dies für den Live-Betrieb unbedingt auf `false`.
     *   **`SESSION_NAME`**: Name für die PHP Session (Beispiel: `ENDORESERVERBANKSESSID`).
+    *   **`GEMINI_API_KEY`**: (Optional, nur wenn der Build-Rechner mit Bilderkennung genutzt werden soll) Dein API-Schlüssel für die Google Gemini API. Diesen erhältst du über das [Google AI Studio](https://aistudio.google.com/app/apikey). Der Build-Rechner ist als BETA gekennzeichnet.
 
     Speichere die `config.php` nach dem Anpassen.
 

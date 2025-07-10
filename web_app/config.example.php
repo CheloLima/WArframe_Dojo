@@ -22,6 +22,8 @@ define('VERIFY_BOT_URL', 'http://45.13.225.40:8000/verify-user/');
 // Das Secret API Key, das sowohl hier als auch in der .env Datei des Python Bots identisch sein muss.
 define('BOT_API_SECRET_KEY', 'CheloLima_Security_Dojo69420'); // LOKAL TEST KEY, BITTE ÄNDERN!
 
+// --- Gemini API Konfiguration (für Build Rechner mit Bilderkennung) ---
+define('GEMINI_API_KEY', 'DEIN_GEMINI_API_KEY_HIER'); // API Key für Google Gemini API
 
 // --- Allgemeine Seiteneinstellungen ---
 define('SITE_NAME', 'Endo Reserve Bank - Warframe Clan DE'); // Angepasst

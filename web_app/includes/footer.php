@@ -2,20 +2,9 @@
     </main> <!-- Ende .site-content -->
 
     <footer class="site-footer">
-        <div class="theme-switcher-container">
-            <label for="theme-select" style="display:none;">Farbschema wählen:</label> <!-- Label für Barrierefreiheit -->
-            <div id="theme-color-buttons">
-                <button class="theme-button" data-color="#6AFF00" data-rgb="106,255,0" style="background-color:#6AFF00;" aria-label="Grünes Thema"></button>
-                <button class="theme-button" data-color="#e602c7" data-rgb="230,2,199" style="background-color:#e602c7;" aria-label="Magenta Thema"></button> <!-- Pink/Rosa zu #e602c7 geändert -->
-                <button class="theme-button" data-color="#00FFFF" data-rgb="0,255,255" style="background-color:#00FFFF;" aria-label="Cyan Thema"></button>
-                <button class="theme-button" data-color="#9400D3" data-rgb="148,0,211" style="background-color:#9400D3;" aria-label="Violettes Thema"></button>
-                <button class="theme-button" data-color="#FF4C4C" data-rgb="255,76,76" style="background-color:#FF4C4C;" aria-label="Rotes Thema"></button>
-                <button class="theme-button" data-color="#FFD700" data-rgb="255,215,0" style="background-color:#FFD700;" aria-label="Gold Thema"></button>
-            </div>
-            </div>
-        </div>
+        <!-- Theme-Switcher-Container wurde hier entfernt -->
         <div class="container footer-credits">
-            <p>Version: 6.9-Echo | &copy; <?php echo date("Y"); ?> <?php echo defined('SITE_NAME') ? SITE_NAME : 'Endo Reserve Bank'; ?>.</p> <!-- Version aktualisiert -->
+            <p>Version: 6.9-Echo | &copy; <?php echo date("Y"); ?> <?php echo defined('SITE_NAME') ? SITE_NAME : 'Endo Reserve Bank'; ?>.</p>
             <p>Made with ♥️ in Peru (🇵🇪), Lima for the World & The Origin System!</p>
             <p>Inspiriert von Warframe. Warframe ist ein Warenzeichen von Digital Extremes Ltd.</p>
             <p class="powered-by">Powered by Chelo Lima EIRL | All Rights Reserved</p>

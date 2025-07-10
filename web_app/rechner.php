@@ -19,17 +19,22 @@ $total_price_ducats = 0; // Für Baro Ki'Teer Items, falls relevant
 $calculation_error = null;
 $calculation_results_html = '';
 $platform = 'pc'; // Standardplattform, könnte konfigurierbar gemacht werden
+$gemini_api_key = defined('GEMINI_API_KEY') ? GEMINI_API_KEY : '';
 
 // Helper function to make cURL requests (generic)
-function make_curl_request($url, $headers = []) {
+function make_curl_request($url, $headers = [], $post_fields = null) { // $post_fields hinzugefügt
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, $url);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
     curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true); // Wichtig für overframe.gg, da es ggf. weiterleitet
-    curl_setopt($ch, CURLOPT_USERAGENT, 'EchoSolDojoBuildRechner/1.0 (https://dojo.chelo.lat; Kontakt admin@chelo.lat)'); // Höflicher User-Agent
-    curl_setopt($ch, CURLOPT_TIMEOUT, 15); // Timeout für Anfragen
+    curl_setopt($ch, CURLOPT_USERAGENT, 'EndoReserveBankRechner/1.0 (https://dojo.chelo.lat; Kontakt admin@chelo.lat)'); // Angepasster User-Agent
+    curl_setopt($ch, CURLOPT_TIMEOUT, 45); // Erhöhter Timeout für potenzielle API-Latenz (Gemini)
     if (!empty($headers)) {
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+    }
+    if ($post_fields !== null) {
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $post_fields);
     }
     $response = curl_exec($ch);
     $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
@@ -47,143 +52,192 @@ function make_curl_request($url, $headers = []) {
 
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['calculate_build'])) {
-    $overframe_url = trim($_POST['overframe_url'] ?? '');
+    // $overframe_url = trim($_POST['overframe_url'] ?? ''); // Alte Logik entfernt
     $platform_form = trim($_POST['platform'] ?? 'pc');
     if (in_array($platform_form, ['pc', 'ps4', 'xbox', 'switch'])) {
         $platform = $platform_form;
     }
 
-    if (empty($overframe_url)) {
-        $calculation_error = "Bitte gib eine Overframe.gg URL ein.";
-    } elseif (!filter_var($overframe_url, FILTER_VALIDATE_URL) || !strpos($overframe_url, 'overframe.gg/build/')) {
-        $calculation_error = "Ungültige Overframe.gg Build URL.";
+    if (empty($gemini_api_key)) {
+        $calculation_error = "Fehler: Gemini API Key nicht in der Konfiguration gefunden. Der Bild-Rechner kann nicht verwendet werden.";
+    } elseif (!isset($_FILES['build_screenshot']) || $_FILES['build_screenshot']['error'] !== UPLOAD_ERR_OK) {
+        $upload_errors = [
+            UPLOAD_ERR_INI_SIZE   => "Die hochgeladene Datei überschreitet die upload_max_filesize Direktive in php.ini.",
+            UPLOAD_ERR_FORM_SIZE  => "Die hochgeladene Datei überschreitet die MAX_FILE_SIZE Direktive, die im HTML-Formular angegeben wurde.",
+            UPLOAD_ERR_PARTIAL    => "Die hochgeladene Datei wurde nur teilweise hochgeladen.",
+            UPLOAD_ERR_NO_FILE    => "Es wurde keine Datei hochgeladen.",
+            UPLOAD_ERR_NO_TMP_DIR => "Es fehlt ein temporärer Ordner.",
+            UPLOAD_ERR_CANT_WRITE => "Fehler beim Schreiben der Datei auf die Festplatte.",
+            UPLOAD_ERR_EXTENSION  => "Eine PHP-Erweiterung hat den Datei-Upload gestoppt.",
+        ];
+        $error_code = $_FILES['build_screenshot']['error'] ?? UPLOAD_ERR_NO_FILE;
+        $calculation_error = "Fehler beim Datei-Upload: " . ($upload_errors[$error_code] ?? "Unbekannter Fehler.");
     } else {
-        // 1. Overframe.gg Seite abrufen
-        $calculation_results_html .= "<h3>Schritt 1: Lade Overframe.gg Seite...</h3>";
-        $overframe_data = make_curl_request($overframe_url);
+        $file = $_FILES['build_screenshot'];
+        $allowed_mime_types = ['image/jpeg', 'image/png'];
+        $max_file_size = 5 * 1024 * 1024; // 5MB
 
-        if ($overframe_data['error']) {
-            $calculation_error = "Fehler beim Abrufen der Overframe.gg Seite: " . $overframe_data['error'];
+        if (!in_array($file['type'], $allowed_mime_types)) {
+            $calculation_error = "Ungültiger Dateityp. Nur JPG und PNG sind erlaubt.";
+        } elseif ($file['size'] > $max_file_size) {
+            $calculation_error = "Datei ist zu groß (max. 5MB).";
         } else {
-            $html_content = $overframe_data['response'];
-            $calculation_results_html .= "<p class='message success'>Overframe.gg Seite erfolgreich geladen (HTTP Status: {$overframe_data['http_code']}).</p>";
+            // Bild erfolgreich validiert
+            $calculation_results_html .= "<p class='message success'>Screenshot erfolgreich hochgeladen und validiert.</p>";
+            $image_data_base64 = base64_encode(file_get_contents($file['tmp_name']));
+            $image_mime_type = $file['type'];
 
-            // 2. Mod-Namen extrahieren (Dieser Teil ist sehr anfällig für Änderungen an der Overframe.gg Struktur)
-            $calculation_results_html .= "<h3>Schritt 2: Extrahiere Mod-Namen...</h3>";
-            $doc = new DOMDocument();
-            @$doc->loadHTML($html_content); // @ unterdrückt Fehler bei ungültigem HTML
-            $xpath = new DOMXPath($doc);
+            // Nächste Schritte: Gemini API Anfrage, etc.
+            // Dies wird im nächsten Schritt implementiert.
+            $calculation_results_html .= "<h3>Schritt 1: Bereite Bild für Gemini API vor...</h3>";
+            $calculation_results_html .= "<p>MIME-Typ: " . htmlspecialchars($image_mime_type) . "</p>";
 
-            // Verschiedene mögliche XPath-Ausdrücke, da sich die Struktur ändern kann.
-            // Annahme: Mods sind oft in Elementen mit Klassennamen, die "mod_card_name", "mod-name", "mod-title" etc. enthalten
-            // oder in <a> Tags mit hrefs, die "/items/..." enthalten und einen Titel haben.
-            // Dies ist ein sehr generischer Ansatz. Man müsste die aktuelle Struktur von overframe.gg analysieren.
-            // Beispiel-Selektor (muss angepasst werden!):
-            // Suchen nach Elementen, die den Mod-Namen als Text enthalten könnten.
-            // Oft sind Mod-Namen in <a>-Tags oder <span>-Tags innerhalb von komplexeren Strukturen.
-            // $nodes = $xpath->query("//div[contains(@class, 'mod-slot')]//a[contains(@href, '/items/')]//span[contains(@class, 'name')] | //div[contains(@class, 'mod-slot')]//div[contains(@class, 'mod-name')]");
+            $extracted_mods = [];
+            $mod_prices = [];
+            $total_price_plat = 0;
 
-            // Ein häufigeres Muster ist, dass Mod-Namen in `<h4>` oder `<a>` Tags innerhalb von `<div>`s mit `data-id` Attributen für Mods stehen.
-            // Oder in Elementen mit dem Titel des Mods.
-            // Dieser Query sucht nach Elementen, die einen Titel haben, der typisch für Mod-Namen ist.
-            // Und filtert dann bekannte Nicht-Mod-Titel heraus.
-            // $query = "//*[self::h4 or self::a or self::div][normalize-space(text()) != '']"; // Sehr breit
-            // $query = "//div[contains(@class, 'mod-name') or contains(@class, 'mod_card_name') or contains(@class, 'mod--name')]/text()"; // Direkter Text von "mod-name" Klassen
-            // $query = "//a[contains(@href, '/modules/') or contains(@href, '/items/mods/')]/@title"; // Titel von Links zu Mods
-            // $query = "//h4[contains(@class, 'name') and ../../@data-id]"; // h4 mit Klasse 'name' in einem div mit data-id (oft Mods)
+            // 2. Gemini API Anfrage
+            $calculation_results_html .= "<h3>Schritt 2: Sende Bild an Gemini API zur Texterkennung...</h3>";
+            $gemini_api_endpoint = "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro-vision:generateContent?key=" . $gemini_api_key;
 
-            // Neuer Versuch basierend auf einer häufigen Struktur (Stand Juli 2024):
-            // Mods sind oft als `<a>` in einer `div` mit `class="mod-image-wrapper"` und der Name ist im `title` Attribut des `<a>` oder im `alt` des `<img>` darin.
-            // Oder in einem `<h4>` mit `class="name"`.
-            $mod_name_nodes = $xpath->query("//div[contains(@class, 'mod-image-wrapper')]/a[@title] | //h4[contains(@class, 'name')]");
+            $gemini_payload = [
+                "contents" => [
+                    [
+                        "parts" => [
+                            ["text" => "Extrahiere alle einzelnen Mod-Namen aus diesem Warframe-Build-Screenshot. Liste jeden Mod-Namen in einer neuen Zeile. Konzentriere dich nur auf die Namen der Mods, ignoriere andere UI-Elemente und Statistiken. Wenn möglich, gib die Namen so an, wie sie im Spiel typischerweise heißen (z.B. 'Vitality', 'Serration', 'Primed Continuity')."],
+                            [
+                                "inline_data" => [
+                                    "mime_type" => $image_mime_type,
+                                    "data" => $image_data_base64
+                                ]
+                            ]
+                        ]
+                    ]
+                ],
+                // Optional: Generation Config anpassen für bessere Ergebnisse bei Texterkennung
+                // "generationConfig" => [
+                //    "temperature" => 0.2, // Niedrigere Temperatur für präzisere, weniger kreative Antworten
+                //    "maxOutputTokens" => 1024,
+                // ]
+            ];
 
-            if ($mod_name_nodes->length > 0) {
-                foreach ($mod_name_nodes as $node) {
-                    $mod_name = '';
-                    if ($node->nodeName === 'a' && $node->hasAttribute('title')) {
-                        $mod_name = trim($node->getAttribute('title'));
-                    } elseif ($node->nodeName === 'h4') {
-                        $mod_name = trim($node->textContent);
-                    }
+            $gemini_headers = [
+                'Content-Type: application/json'
+            ];
 
-                    // Filterung und Bereinigung
-                    if (!empty($mod_name) && !in_array($mod_name, $extracted_mods)) {
-                        // Manchmal sind Ränge angehängt wie "Vitality (Rank 10)"
-                        $mod_name = preg_replace('/\s*\(Rank\s*\d+\)\s*$/i', '', $mod_name);
-                        // Manchmal sind es "Primed Vitality" oder "Umbral Vitality"
-                        // Diese sollten so bleiben.
-                        // Vermeide Duplikate
-                        if (!in_array($mod_name, $extracted_mods)) {
-                             $extracted_mods[] = $mod_name;
-                        }
-                    }
+            $gemini_response_data = make_curl_request($gemini_api_endpoint, $gemini_headers, json_encode($gemini_payload));
+
+            if ($gemini_response_data['error']) {
+                $calculation_error = "Fehler bei der Anfrage an die Gemini API: " . htmlspecialchars($gemini_response_data['error']);
+                if (defined('DEBUG_MODE') && DEBUG_MODE && !empty($gemini_response_data['response'])) {
+                    $calculation_error .= "<br>Antwort-Body: <pre>" . htmlspecialchars($gemini_response_data['response']) . "</pre>";
                 }
+                $calculation_results_html .= "<p class='message error'>Gemini API Anfrage fehlgeschlagen.</p>";
             } else {
-                 $calculation_results_html .= "<p class='message warning'>Keine typischen Mod-Strukturen gefunden mit dem primären XPath. Versuche alternativen Selektor...</p>";
-                 // Alternativer, sehr breiter Selektor, falls der spezifische fehlschlägt
-                 // Sucht nach <a> Tags, die auf /items/ verlinken und einen Titel haben
-                 $alt_nodes = $xpath->query("//a[contains(@href, '/items/') and @title and string-length(@title)>2]");
-                 foreach ($alt_nodes as $node) {
-                    $mod_name = trim($node->getAttribute('title'));
-                    $mod_name = preg_replace('/\s*\(Rank\s*\d+\)\s*$/i', '', $mod_name);
-                    // Zusätzliche Filter, um Nicht-Mods auszuschließen
-                    if (!preg_match('/(Overview|Details|Comment|Build|Guide|Warframe|Weapon|Archwing|Necramech)/i', $mod_name) && strlen($mod_name) < 50 && !in_array($mod_name, $extracted_mods)) {
-                        if (!in_array($mod_name, $extracted_mods)) {
-                             $extracted_mods[] = $mod_name;
+                $gemini_json_response = json_decode($gemini_response_data['response'], true);
+                // Debugging der Gemini Antwort:
+                // $calculation_results_html .= "<pre>Gemini Rohantwort: " . htmlspecialchars(print_r($gemini_json_response, true)) . "</pre>";
+
+                if (isset($gemini_json_response['candidates'][0]['content']['parts'][0]['text'])) {
+                    $detected_text = $gemini_json_response['candidates'][0]['content']['parts'][0]['text'];
+                    $calculation_results_html .= "<p class='message success'>Text von Gemini API erfolgreich empfangen.</p>";
+                    $calculation_results_html .= "<h4>Erkannter Text (Rohformat von Gemini):</h4><pre>" . htmlspecialchars($detected_text) . "</pre>";
+
+                    // Mod-Namen extrahieren und filtern
+                    $lines = explode("\n", $detected_text);
+                    $potential_mods = [];
+                    foreach ($lines as $line) {
+                        $trimmed_line = trim($line);
+                        // Einfache Filter: nicht leer, nicht zu lang, keine typischen UI-Texte
+                        if (!empty($trimmed_line) && strlen($trimmed_line) < 50 && strlen($trimmed_line) > 2 && !preg_match('/(Rank|Level|Stat|Cost|Drain|Capacity|Polarity|Forma|Slot|Build|Stats|Details|Comments)/i', $trimmed_line)) {
+                            // Entferne führende Aufzählungszeichen wie "-", "*", "1." etc.
+                            $cleaned_mod_name = preg_replace('/^[\s\-\*\d\.]+\s*/', '', $trimmed_line);
+                            $cleaned_mod_name = trim($cleaned_mod_name);
+                            if (!empty($cleaned_mod_name) && !in_array($cleaned_mod_name, $potential_mods)) {
+                                $potential_mods[] = $cleaned_mod_name;
+                            }
                         }
                     }
-                 }
-            }
+                    $extracted_mods = $potential_mods; // Für die spätere warframe.market Abfrage
 
-
-            if (empty($extracted_mods)) {
-                $calculation_error = "Konnte keine Mod-Namen aus der URL extrahieren. Die Struktur der Seite hat sich möglicherweise geändert oder die URL enthält keine typischen Mod-Informationen.";
-                $calculation_results_html .= "<p class='message error'>Extraktion fehlgeschlagen.</p>";
-                // Debug: Zeige einen Teil des HTML an, um die Struktur zu prüfen
-                // $calculation_results_html .= "<pre style='max-height: 200px; overflow:auto; border:1px solid #ccc; padding:5px;'>" . htmlspecialchars(substr($html_content, 0, 5000)) . "</pre>";
-
-            } else {
-                $calculation_results_html .= "<p class='message success'>Folgende potenzielle Mod-Namen extrahiert: " . htmlspecialchars(implode(', ', $extracted_mods)) . "</p>";
-                $calculation_results_html .= "<h3>Schritt 3: Preise von warframe.market abfragen...</h3>";
-
-                // 3. Preise von warframe.market abfragen
-                foreach ($extracted_mods as $mod_name) {
-                    $item_url_name = strtolower(str_replace(' ', '_', str_replace(['(', ')', '&', "'"], '', $mod_name))); // Format für warframe.market API
-                    $market_api_url = "https://api.warframe.market/v1/items/{$item_url_name}/orders?platform={$platform}&include=item";
-
-                    $calculation_results_html .= "<p>Frage Preis für '<strong>" . htmlspecialchars($mod_name) . "</strong>' (URL-Name: {$item_url_name}) an...</p>";
-                    $market_data = make_curl_request($market_api_url, ['accept: application/json', 'language: de']); // Sprache Deutsch für evtl. Item-Namen
-
-                    if ($market_data['error']) {
-                        $mod_prices[$mod_name] = ['error' => "Fehler bei API-Anfrage: " . $market_data['error']];
-                        $calculation_results_html .= "<p class='message warning'>&nbsp;&nbsp;&nbsp;Fehler für ".htmlspecialchars($mod_name).": " . htmlspecialchars($market_data['error']) . "</p>";
-                        continue;
-                    }
-
-                    $orders_data = json_decode($market_data['response'], true);
-                    if (isset($orders_data['payload']['orders'])) {
-                        $sell_orders = array_filter($orders_data['payload']['orders'], function ($order) {
-                            return $order['order_type'] === 'sell' && $order['user']['status'] !== 'offline' && $order['visible'] === true;
-                        });
-
-                        if (!empty($sell_orders)) {
-                            usort($sell_orders, function ($a, $b) { // Sortiere nach Preis aufsteigend
-                                return $a['platinum'] <=> $b['platinum'];
-                            });
-                            $cheapest_order = $sell_orders[0]; // Nimm den günstigsten Online-Verkäufer
-                            $price = $cheapest_order['platinum'];
-                            $mod_prices[$mod_name] = ['price_platinum' => $price, 'source' => 'warframe.market', 'seller' => $cheapest_order['user']['ingame_name']];
-                            $total_price_plat += $price;
-                            $calculation_results_html .= "<p class='message success'>&nbsp;&nbsp;&nbsp;Preis für ".htmlspecialchars($mod_name).": <strong>{$price} <img src='assets/images/platinum.png' alt='Platin' class='currency-icon'></strong> (Verkäufer: {$cheapest_order['user']['ingame_name']})</p>";
-                        } else {
-                            $mod_prices[$mod_name] = ['error' => 'Keine Online-Verkaufsangebote gefunden.'];
-                             $calculation_results_html .= "<p class='message info'>&nbsp;&nbsp;&nbsp;Keine Online-Verkaufsangebote für ".htmlspecialchars($mod_name)." gefunden.</p>";
-                        }
+                    if (empty($extracted_mods)) {
+                        $calculation_error = "Konnte keine plausiblen Mod-Namen aus dem erkannten Text extrahieren.";
+                        $calculation_results_html .= "<p class='message warning'>Keine Mod-Namen extrahiert.</p>";
                     } else {
-                        $mod_prices[$mod_name] = ['error' => 'Ungültige API-Antwort von warframe.market.'];
-                        $calculation_results_html .= "<p class='message warning'>&nbsp;&nbsp;&nbsp;Ungültige API-Antwort für ".htmlspecialchars($mod_name).". Eventuell ist der Item-Name '{$item_url_name}' falsch oder das Item nicht handelbar.</p>";
+                        $calculation_results_html .= "<p class='message success'>Potenzielle Mod-Namen extrahiert: " . htmlspecialchars(implode(', ', $extracted_mods)) . "</p>";
+                        $calculation_results_html .= "<h3>Schritt 3: Preise von warframe.market abfragen...</h3>";
+
+                        // Rudimentäres Deutsch -> Englisch Mapping für warframe.market Slugs
+                        $mod_name_map = [
+                            'Vitalität' => 'vitality',
+                            'Stahlfasern' => 'steel_fiber',
+                            'Kontinuität (Primed)' => 'primed_continuity',
+                            'Kontinuität' => 'continuity',
+                            'Fluss (Primed)' => 'primed_flow',
+                            'Fluss' => 'flow',
+                            'Intensivieren' => 'intensify',
+                            'Dehnen' => 'stretch',
+                            'Verkürzen' => 'streamline',
+                            'Stromlinie' => 'streamline', // Alias
+                            'Gezackte Pfeilspitze' => 'serration', // Serration
+                            'Hornissenstich' => 'hornet_strike',
+                            'Spaltkammer' => 'split_chamber',
+                            'Kritischer Schaden' => 'point_strike', // Point Strike (Krit-Chance) vs Vital Sense (Krit-Schaden)
+                            'Vitalgespür' => 'vital_sense',
+                            // Diese Liste MUSS umfangreich erweitert werden!
+                        ];
+
+                        foreach ($extracted_mods as $mod_name) {
+                            $original_mod_name = $mod_name; // Für Anzeige
+                            // Versuche deutsches Mapping, sonst nimm an, es ist schon englisch oder ein Slug-ähnlicher Name
+                            $item_url_name = $mod_name_map[$mod_name] ?? strtolower(str_replace([' ', '(', ')', "'",":"], ['_', '', '', '',''], $mod_name));
+                            // Entferne " (Primed)" etc. für die URL, falls es nicht im Mapping ist, aber behalte es für die Anzeige
+                            $item_url_name = str_replace(['_primed', '_umbral', '_apex'], ['_primed', '_umbral_form_aura', '_apex_form_aura'], $item_url_name); // Beispiel für komplexere Slugs, muss verbessert werden
+
+
+                            $market_api_url = "https://api.warframe.market/v1/items/{$item_url_name}/orders?platform={$platform}&include=item";
+                            $calculation_results_html .= "<p>Frage Preis für '<strong>" . htmlspecialchars($original_mod_name) . "</strong>' (API-Slug: {$item_url_name}) an...</p>";
+
+                            $market_data = make_curl_request($market_api_url, ['accept: application/json']);
+
+                            if ($market_data['error']) {
+                                $mod_prices[$original_mod_name] = ['error' => "Fehler bei API-Anfrage: " . $market_data['error']];
+                                $calculation_results_html .= "<p class='message warning'>&nbsp;&nbsp;&nbsp;Fehler für ".htmlspecialchars($original_mod_name).": " . htmlspecialchars($market_data['error']) . "</p>";
+                                continue;
+                            }
+
+                            $orders_data = json_decode($market_data['response'], true);
+                            if (isset($orders_data['payload']['orders'])) {
+                                $sell_orders = array_filter($orders_data['payload']['orders'], function ($order) {
+                                    return $order['order_type'] === 'sell' && $order['user']['status'] !== 'offline' && $order['visible'] === true && isset($order['platinum']);
+                                });
+
+                                if (!empty($sell_orders)) {
+                                    usort($sell_orders, function ($a, $b) { return $a['platinum'] <=> $b['platinum']; });
+                                    $cheapest_order = $sell_orders[0];
+                                    $price = $cheapest_order['platinum'];
+                                    $mod_prices[$original_mod_name] = ['price_platinum' => $price, 'source' => 'warframe.market', 'seller' => $cheapest_order['user']['ingame_name']];
+                                    $total_price_plat += $price;
+                                    $calculation_results_html .= "<p class='message success'>&nbsp;&nbsp;&nbsp;Preis für ".htmlspecialchars($original_mod_name).": <strong>{$price} <img src='assets/images/platinum.png' alt='Platin' class='currency-icon'></strong> (Verkäufer: {$cheapest_order['user']['ingame_name']})</p>";
+                                } else {
+                                    $mod_prices[$original_mod_name] = ['error' => 'Keine Online-Verkaufsangebote gefunden.'];
+                                    $calculation_results_html .= "<p class='message info'>&nbsp;&nbsp;&nbsp;Keine Online-Verkaufsangebote für ".htmlspecialchars($original_mod_name)." gefunden.</p>";
+                                }
+                            } else {
+                                $mod_prices[$original_mod_name] = ['error' => 'Ungültige API-Antwort von warframe.market.'];
+                                $calculation_results_html .= "<p class='message warning'>&nbsp;&nbsp;&nbsp;Ungültige API-Antwort für ".htmlspecialchars($original_mod_name).". Slug '{$item_url_name}' evtl. falsch oder Item nicht handelbar.</p>";
+                            }
+                            usleep(350000); // Rate Limiting
+                        }
+                        $calculation_error = null; // Fehler löschen, wenn bis hierhin alles gut ging (oder teilweise)
                     }
-                     usleep(350000); // Rate Limiting: ca. 3 Anfragen pro Sekunde (333ms Pause)
+
+                } else {
+                    $calculation_error = "Konnte keinen Text aus der Gemini API Antwort extrahieren oder ungültiges Format.";
+                    if (defined('DEBUG_MODE') && DEBUG_MODE) {
+                        $calculation_error .= "<br>Gemini Antwort: <pre>" . htmlspecialchars(print_r($gemini_json_response, true)) . "</pre>";
+                    }
+                    $calculation_results_html .= "<p class='message error'>Fehler beim Verarbeiten der Gemini API Antwort.</p>";
                 }
             }
         }
@@ -192,17 +246,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['calculate_build'])) {
 
 ?>
 
-<h1>Build Kosten Rechner (von Overframe.gg)</h1>
-<p>Dieses Tool versucht, die Mod-Namen aus einem öffentlichen Overframe.gg Build zu extrahieren und die ungefähren Handelskosten auf <a href="https://warframe.market" target="_blank">warframe.market</a> zu ermitteln.</p>
-<p class="message info"><strong>Hinweis:</strong> Die Extraktion der Mod-Namen von Overframe.gg ist experimentell und kann fehlschlagen, wenn sich die Struktur der Seite ändert. Die Preise von warframe.market sind Schätzungen basierend auf aktuellen Angeboten.</p>
+<h1>Build Kosten Rechner (BETA - via Screenshot-Analyse)</h1>
+<p>Lade einen Screenshot deines Warframe-Builds hoch (idealerweise nur den Mod-Bereich). Das System versucht, die Mods mittels KI (Google Gemini) zu erkennen und die ungefähren Handelskosten auf <a href="https://warframe.market" target="_blank">warframe.market</a> zu ermitteln.</p>
+<p class="message info"><strong>Wichtiger Hinweis (BETA):</strong> Die Mod-Erkennung aus Bildern ist komplex und nicht immer 100% präzise. Die Genauigkeit hängt stark von der Qualität und dem Ausschnitt des Screenshots ab. Deutsche Mod-Namen werden nach bestem Wissen den englischen warframe.market-Bezeichnungen zugeordnet.</p>
+<p class="message warning">Bitte stelle sicher, dass dein `GEMINI_API_KEY` in der `config.php` korrekt eingetragen ist, damit dieses Feature funktioniert.</p>
 
-<form action="rechner.php" method="POST" class="card">
+<form action="rechner.php" method="POST" class="card" enctype="multipart/form-data"> <!-- enctype hinzugefügt -->
     <div class="form-group">
-        <label for="overframe_url">Overframe.gg Build URL:</label>
-        <input type="url" name="overframe_url" id="overframe_url" value="<?php echo htmlspecialchars($overframe_url); ?>" placeholder="https://overframe.gg/build/xxxxxx/..." required>
+        <label for="build_screenshot">Build-Screenshot hochladen (max. 5MB, JPG/PNG):</label>
+        <input type="file" name="build_screenshot" id="build_screenshot" accept="image/jpeg,image/png" required>
     </div>
     <div class="form-group">
-        <label for="platform">Plattform:</label>
+        <label for="platform">Plattform für Preisanfrage:</label>
         <select name="platform" id="platform">
             <option value="pc" <?php echo ($platform === 'pc') ? 'selected' : ''; ?>>PC</option>
             <option value="ps4" <?php echo ($platform === 'ps4') ? 'selected' : ''; ?>>PlayStation</option>
