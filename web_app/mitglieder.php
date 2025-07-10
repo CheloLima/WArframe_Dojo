@@ -99,7 +99,7 @@ a.member-list-item-link {
 }
 .member-list-item.card:hover {
     transform: translateY(-5px) scale(1.02);
-    box-shadow: 0 8px 20px rgba(var(--color-primary-accent-rgb, 106, 255, 0), 0.3); /* RGB für Transparenz */
+    box-shadow: 0 8px 20px rgba(var(--color-primary-accent-rgb), 0.3); /* Fallback entfernt */
     border-left-color: var(--color-primary-accent);
 }
 .member-avatar-container {

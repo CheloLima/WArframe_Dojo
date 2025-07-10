@@ -13,11 +13,12 @@
                 <button class="theme-button" data-color="#FFD700" data-rgb="255,215,0" style="background-color:#FFD700;" aria-label="Gold Thema"></button>
             </div>
         </div>
-        <div class="container">
-            <p>&copy; <?php echo date("Y"); ?> <?php echo defined('SITE_NAME') ? htmlspecialchars(SITE_NAME) : 'Endo Reserve Bank'; ?>. Alle Rechte vorbehalten.</p>
-            <p>
-                Inspiriert von Warframe. Warframe ist ein Warenzeichen von Digital Extremes Ltd.
-                <!-- Optional: Link zu Datenschutz / Impressum -->
+        <div class="container footer-credits">
+            <p>&copy; <?php echo date("Y"); ?> <?php echo defined('SITE_NAME') ? SITE_NAME : 'Endo Reserve Bank'; ?>. Alle Rechte vorbehalten.</p>
+            <p>Made with ♥️ in Peru (🇵🇪), Lima for the World & The Origin System!</p>
+            <p>Inspiriert von Warframe. Warframe ist ein Warenzeichen von Digital Extremes Ltd.</p>
+            <p class="powered-by">Powered by Chelo Lima EIRL | All Rights Reserved</p>
+            <!-- Optional: Link zu Datenschutz / Impressum -->
                 <!-- <a href="<?php echo defined('BASE_URL') ? BASE_URL : '.'; ?>/impressum.php">Impressum</a> |
                 <a href="<?php echo defined('BASE_URL') ? BASE_URL : '.'; ?>/datenschutz.php">Datenschutz</a> -->
             </p>

@@ -44,7 +44,7 @@ body {
     --color-background-light: #2C2C2C;
     --color-text-primary: #E0E0E0;
     --button-text-light: #FFFFFF;
-    --button-text-dark: #121212;
+    --button-text-dark: #000000; /* Geändert zu reinem Schwarz für maximalen Kontrast */
     --button-current-text-color: var(--button-text-dark); /* Standardmäßig dunkler Text für helles Standard-Akzentgrün */
     --color-text-secondary: #B0B0B0;
     --color-border: #3A3A3A;
@@ -325,7 +325,7 @@ form button:hover,
 input[type="submit"]:hover,
 .button:hover, .btn:hover {
     transform: translateY(-2px) scale(1.01);
-    background: linear-gradient(to right, hsl(from var(--color-primary-accent) h s calc(l - 5%)), hsl(from var(--color-primary-accent) h s calc(l - 20%))); /* Hintergrund beim Hover abdunkeln */
+    background: linear-gradient(to right, hsl(from var(--color-primary-accent) h s calc(l - 10%)), hsl(from var(--color-primary-accent) h s calc(l - 25%))); /* Stärker abdunkeln */
     box-shadow: 0 3px 8px rgba(var(--color-primary-accent-rgb), 0.20), inset 0 1px 0 rgba(255,255,255,0.05);
     /* filter: brightness(1.05); -- Entfernt */
 }
@@ -333,19 +333,19 @@ input[type="submit"]:hover,
 /* --- Buttons für andere Aktionen --- */
 .button-secondary, .btn-secondary {
     background: linear-gradient(to right, var(--color-secondary-accent), hsl(from var(--color-secondary-accent) h s calc(l - 15%)));
-    color: var(--button-current-text-color); /* Behält dynamische Textfarbe basierend auf primärem Akzent */
+    color: var(--button-current-text-color);
 }
 .button-secondary:hover, .btn-secondary:hover {
-    background: linear-gradient(to right, hsl(from var(--color-secondary-accent) h s calc(l - 5%)), hsl(from var(--color-secondary-accent) h s calc(l - 20%))); /* Hintergrund beim Hover abdunkeln */
+    background: linear-gradient(to right, hsl(from var(--color-secondary-accent) h s calc(l - 10%)), hsl(from var(--color-secondary-accent) h s calc(l - 25%))); /* Stärker abdunkeln */
     box-shadow: 0 3px 8px rgba(var(--color-secondary-accent-rgb, 0, 191, 255), 0.20), inset 0 1px 0 rgba(255,255,255,0.05);
 }
 
 .button-danger, .btn-danger {
     background: linear-gradient(to right, var(--color-error), hsl(from var(--color-error) h s calc(l - 10%)));
-    color: var(--button-text-light); /* Bleibt hell, da Hintergrund immer rot/dunkel ist */
+    color: var(--button-text-light);
 }
 .button-danger:hover, .btn-danger:hover {
-    background: linear-gradient(to right, hsl(from var(--color-error) h s calc(l - 5%)), hsl(from var(--color-error) h s calc(l - 15%))); /* Hintergrund beim Hover abdunkeln */
+    background: linear-gradient(to right, hsl(from var(--color-error) h s calc(l - 10%)), hsl(from var(--color-error) h s calc(l - 20%))); /* Stärker abdunkeln */
     box-shadow: 0 3px 8px rgba(255, 76, 76, 0.20), inset 0 1px 0 rgba(255,255,255,0.05);
 }
 
@@ -479,7 +479,7 @@ table td a { /* Links in Tabellen hervorheben */
     background-size: cover;
     background-position: center center; /* Zentriert */
     border-bottom: 3px solid var(--color-primary-accent);
-    box-shadow: 0 5px 20px rgba(106, 255, 0, 0.2); /* Stärkerer Schein */
+    box-shadow: 0 5px 20px rgba(var(--color-primary-accent-rgb), 0.2); /* Dynamischer Schein */
     margin: -2.5rem 0 2.5rem 0; /* Lässt es in den Header überlappen, wenn Header sticky ist */
     position: relative; /* Für Pseudo-Elemente */
 }
@@ -771,3 +771,13 @@ table td a { /* Links in Tabellen hervorheben */
     --color-background-dark-rgb: 18,18,18;
     --color-background-medium-rgb: 30,30,30;
 } */
+
+.footer-credits p {
+    margin-bottom: 0.3em; /* Weniger Abstand zwischen den Footer-Zeilen */
+    font-size: 0.85em;
+}
+.footer-credits .powered-by {
+    margin-top: 0.8em;
+    font-weight: bold;
+    color: var(--color-text-secondary);
+}
