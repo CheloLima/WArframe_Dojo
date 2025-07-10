@@ -59,23 +59,26 @@ INSERT INTO `users` (`discord_id`, `warframe_ign`, `about_me`, `nickname`, `age`
 -- --------------------------------------------------------
 
 --
--- Tabellenstruktur für Tabelle `motd` (Message of the Day)
+-- Tabellenstruktur für Tabelle `motds` (Message of the Day, jetzt mit Verlauf)
 --
 
-CREATE TABLE `motd` (
+CREATE TABLE `motds` (
   `id` INT AUTO_INCREMENT PRIMARY KEY,
+  `title` VARCHAR(255) DEFAULT NULL,
   `content` TEXT NOT NULL,
   `created_by_discord_id` VARCHAR(255) NOT NULL,
+  `is_published` BOOLEAN DEFAULT TRUE,
+  `version` VARCHAR(50) DEFAULT NULL, -- Optional, um MOTD mit einer Plattformversion zu verknüpfen
   `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   FOREIGN KEY (`created_by_discord_id`) REFERENCES `users`(`discord_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Daten für Tabelle `motd`
+-- Daten für Tabelle `motds`
 --
-INSERT INTO `motd` (`content`, `created_by_discord_id`, `created_at`, `updated_at`) VALUES
-('Willkommen im Echo Sol Dojo! Die MOTD kann von Admins bearbeitet werden.', '1020559274012852294', NOW(), NOW());
+INSERT INTO `motds` (`title`, `content`, `created_by_discord_id`, `is_published`, `version`, `created_at`, `updated_at`) VALUES
+('Willkommen!', 'Willkommen bei der Endo Reserve Bank! Die MOTD kann von Admins bearbeitet werden.', '1020559274012852294', TRUE, '1.0', NOW(), NOW());
 
 -- --------------------------------------------------------
 
@@ -134,6 +137,28 @@ CREATE TABLE `user_syndicates` (
 --
 ALTER TABLE `users`
   ADD CONSTRAINT `fk_custom_title` FOREIGN KEY (`custom_title_id`) REFERENCES `custom_titles`(`id`) ON DELETE SET NULL;
+
+-- --------------------------------------------------------
+
+--
+-- Tabellenstruktur für Tabelle `changelog`
+--
+CREATE TABLE `changelog` (
+  `id` INT AUTO_INCREMENT PRIMARY KEY,
+  `version_tag` VARCHAR(50) NOT NULL,
+  `summary` TEXT NOT NULL,
+  `created_by_discord_id` VARCHAR(255) NOT NULL,
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (`created_by_discord_id`) REFERENCES `users`(`discord_id`) ON DELETE SET NULL -- Falls Admin gelöscht wird, bleibt Changelog erhalten
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Beispiel Daten für Tabelle `changelog`
+--
+INSERT INTO `changelog` (`version_tag`, `summary`, `created_by_discord_id`, `created_at`) VALUES
+('6.9-Alpha', 'Initialer Launch der Endo Reserve Bank Plattform.', '1020559274012852294', NOW()),
+('6.9-Delta', '- Footer-Text angepasst.\n- MOTD-System überarbeitet (Verlauf, Entwürfe, Löschen).\n- Button-Lesbarkeit für helle Themen verbessert.\n- Dynamische Akzentfarben für mehr UI-Elemente.', '1020559274012852294', NOW());
+
 
 COMMIT;
 

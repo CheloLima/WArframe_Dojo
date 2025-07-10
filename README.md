@@ -1,7 +1,7 @@
 # Endo Reserve Bank Community-Plattform
 
 Willkommen bei der Endo Reserve Bank Community-Plattform! Dieses Projekt stellt eine Webseite für den Warframe-Clan "Endo Reserve Bank" bereit, inklusive eines Mitgliederbereichs und eines Discord-Verifizierungs-Bots.
-Die Plattform bietet Funktionen wie Benutzerprofile (mit Discord-Avatar-Synchronisierung), eine Mitgliederliste, MOTD, ein System für Custom Titles, einen Build-Kosten-Rechner und ein Admin-Panel. <!-- Custom Avatar Upload entfernt -->
+Die Plattform bietet Funktionen wie Benutzerprofile (mit Discord-Avatar-Synchronisierung), eine Mitgliederliste, ein überarbeitetes MOTD-System (mit Verlauf, Entwurfsmodus und Admin-Verwaltung), einen Plattform-Changelog, ein System für Custom Titles, einen Build-Kosten-Rechner und ein Admin-Panel. <!-- Erweitert -->
 
 ## Inhaltsverzeichnis
 
@@ -141,6 +141,58 @@ Die Web-Anwendung benötigt eine MySQL-Datenbank, um Benutzerdaten, MOTD, Kommen
     *   Wenn der Import erfolgreich war, siehst du eine Erfolgsmeldung und in der linken Navigationsleiste unter deiner Datenbank die neu erstellten Tabellen (`users`, `motd`, `custom_titles`, `profile_comments`, `user_syndicates`).
 
     Deine Datenbank ist nun eingerichtet und bereit für die Konfiguration der PHP-Anwendung.
+
+    **Für bestehende Installationen (Updates für MOTD-System):**
+    Falls du von einer früheren Version aktualisierst, die das neue MOTD-System mit Verlauf noch nicht hatte, führe bitte folgende SQL-Befehle in phpMyAdmin aus:
+    ```sql
+    -- Benenne die alte 'motd' Tabelle um, falls sie existiert (als Backup)
+    RENAME TABLE IF EXISTS `motd` TO `motd_old_backup`;
+
+    -- Erstelle die neue 'motds' Tabelle (Struktur siehe aktuelle schema.sql)
+    CREATE TABLE `motds` (
+      `id` INT AUTO_INCREMENT PRIMARY KEY,
+      `title` VARCHAR(255) DEFAULT NULL,
+      `content` TEXT NOT NULL,
+      `created_by_discord_id` VARCHAR(255) NOT NULL,
+      `is_published` BOOLEAN DEFAULT TRUE,
+      `version` VARCHAR(50) DEFAULT NULL,
+      `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+      FOREIGN KEY (`created_by_discord_id`) REFERENCES `users`(`discord_id`) ON DELETE CASCADE
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+    -- Optional: Migriere die letzte MOTD aus dem Backup, falls gewünscht
+    -- INSERT INTO `motds` (title, content, created_by_discord_id, created_at, updated_at)
+    -- SELECT NULL, content, created_by_discord_id, created_at, updated_at FROM `motd_old_backup` ORDER BY updated_at DESC LIMIT 1;
+    ```
+    Alternativ, wenn du die `motd` Tabelle bereits hattest und nur erweitern willst (Daten bleiben erhalten):
+    ```sql
+    ALTER TABLE `motd` RENAME TO `motds`;
+    ALTER TABLE `motds`
+      ADD COLUMN `title` VARCHAR(255) DEFAULT NULL AFTER `id`,
+      ADD COLUMN `is_published` BOOLEAN DEFAULT TRUE AFTER `created_by_discord_id`,
+      ADD COLUMN `version` VARCHAR(50) DEFAULT NULL AFTER `is_published`;
+    ```
+    Wähle den für dich passenden Ansatz. Die erste Methode (RENAME TABLE, CREATE TABLE) ist sauberer, wenn die alte MOTD nicht unbedingt migriert werden muss. Die zweite Methode erhält die Historie, falls die Tabelle schon `motd` hieß und nicht `motds`. Da wir von `motd` zu `motds` wechseln, ist die RENAME+ALTER-Variante besser.
+
+    **Für das Changelog-System (ab Version 6.9-Delta):**
+    Führe bitte folgenden SQL-Befehl aus, um die `changelog`-Tabelle zu erstellen:
+    ```sql
+    CREATE TABLE `changelog` (
+      `id` INT AUTO_INCREMENT PRIMARY KEY,
+      `version_tag` VARCHAR(50) NOT NULL,
+      `summary` TEXT NOT NULL,
+      `created_by_discord_id` VARCHAR(255) NOT NULL,
+      `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (`created_by_discord_id`) REFERENCES `users`(`discord_id`) ON DELETE SET NULL
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+    -- Beispiel-Einträge (optional):
+    INSERT INTO `changelog` (`version_tag`, `summary`, `created_by_discord_id`, `created_at`) VALUES
+    ('6.9-Alpha', 'Initialer Launch der Endo Reserve Bank Plattform.', 'DEINE_ADMIN_DISCORD_ID', NOW()),
+    ('6.9-Delta', '- Footer-Text angepasst.\n- MOTD-System überarbeitet (Verlauf, Entwürfe, Löschen).\n- Button-Lesbarkeit für helle Themen verbessert.\n- Dynamische Akzentfarben für mehr UI-Elemente.', 'DEINE_ADMIN_DISCORD_ID', NOW());
+    ```
+    Ersetze `DEINE_ADMIN_DISCORD_ID` mit der tatsächlichen Discord-ID eines Admin-Benutzers.
 
 ### Konfiguration (PHP)
 

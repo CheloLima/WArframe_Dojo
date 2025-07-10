@@ -34,13 +34,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Button-Textfarbe basierend auf der Helligkeit der Akzentfarbe bestimmen
         const luminance = getLuminance(hexColor);
-        // Schwellenwert für Helligkeit (experimentell, kann angepasst werden)
-        // Farben mit Luminanz > 128-150 gelten als "hell"
-        if (luminance > 140) { // Wenn Akzentfarbe hell ist
-            root.style.setProperty('--button-current-text-color', 'var(--button-text-dark)');
-        } else { // Wenn Akzentfarbe dunkel ist
-            root.style.setProperty('--button-current-text-color', 'var(--button-text-light)');
+        let buttonTextColorVar = 'var(--button-text-light)'; // Standardmäßig heller Text
+
+        if (luminance > 140) { // Wenn Akzentfarbe generell als hell eingestuft wird
+            buttonTextColorVar = 'var(--button-text-dark)';
         }
+
+        // Spezifische Überschreibungen für bestimmte helle Farben, die trotzdem hellen Text benötigen könnten
+        // oder bei denen dunkler Text nicht gut aussieht (z.B. Grün, Cyan)
+        const problematicBrightColors = ['#6AFF00', '#00FFFF']; // Grün, Cyan
+        if (problematicBrightColors.includes(hexColor.toUpperCase())) {
+            buttonTextColorVar = 'var(--button-text-light)';
+        }
+
+        // Für Gold (#FFD700), Luminanz ~202, ist dunkler Text korrekt.
+        // Der allgemeine Check (luminance > 140) setzt es auf dark, was gut ist.
+
+        root.style.setProperty('--button-current-text-color', buttonTextColorVar);
 
         // Optional: Anpassung von Border-Glow und Glow-Shadow basierend auf der neuen Primärfarbe.
         // Die aktuellen CSS-Variablen (--color-border-glow, --glow-shadow-primary)

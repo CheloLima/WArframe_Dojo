@@ -12,16 +12,18 @@
                 <button class="theme-button" data-color="#FF4C4C" data-rgb="255,76,76" style="background-color:#FF4C4C;" aria-label="Rotes Thema"></button>
                 <button class="theme-button" data-color="#FFD700" data-rgb="255,215,0" style="background-color:#FFD700;" aria-label="Gold Thema"></button>
             </div>
+            </div>
         </div>
         <div class="container footer-credits">
-            <p>&copy; <?php echo date("Y"); ?> <?php echo defined('SITE_NAME') ? SITE_NAME : 'Endo Reserve Bank'; ?>. Alle Rechte vorbehalten.</p>
+            <p>Version: 6.9-Delta | &copy; <?php echo date("Y"); ?> <?php echo defined('SITE_NAME') ? SITE_NAME : 'Endo Reserve Bank'; ?>.</p> <!-- "Alle Rechte vorbehalten" entfernt, Version hinzugefügt -->
             <p>Made with ♥️ in Peru (🇵🇪), Lima for the World & The Origin System!</p>
             <p>Inspiriert von Warframe. Warframe ist ein Warenzeichen von Digital Extremes Ltd.</p>
             <p class="powered-by">Powered by Chelo Lima EIRL | All Rights Reserved</p>
+            <!-- Das zweite "Alle Rechte vorbehalten" war hier und wurde entfernt. -->
             <!-- Optional: Link zu Datenschutz / Impressum -->
                 <!-- <a href="<?php echo defined('BASE_URL') ? BASE_URL : '.'; ?>/impressum.php">Impressum</a> |
                 <a href="<?php echo defined('BASE_URL') ? BASE_URL : '.'; ?>/datenschutz.php">Datenschutz</a> -->
-            </p>
+            </p> <!-- Dieser schließende p-Tag war überflüssig und wurde entfernt. -->
         </div>
     </footer>
 

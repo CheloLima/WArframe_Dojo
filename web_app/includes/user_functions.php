@@ -193,51 +193,118 @@ function isUserAdmin(PDO $pdo, string $discord_id): bool {
 // --- Weitere Hilfsfunktionen (MOTD, Kommentare, Titel etc.) ---
 
 /**
- * Holt die aktuelle Message of the Day (MOTD).
+ * Holt die neueste *veröffentlichte* Message of the Day (MOTD).
  * @param PDO $pdo
  * @return array|null
  */
-function getMotd(PDO $pdo): ?array {
-    // Hole die neueste MOTD oder eine spezifische, falls es mehrere gäbe
-    $stmt = $pdo->query("SELECT m.content, m.updated_at, u.discord_username as author_username
-                         FROM motd m
-                         JOIN users u ON m.created_by_discord_id = u.discord_id
-                         ORDER BY m.updated_at DESC LIMIT 1");
+function getLatestPublishedMotd(PDO $pdo): ?array {
+    $sql = "SELECT m.id, m.title, m.content, m.updated_at, m.version, u.discord_username as author_username
+            FROM motds m
+            JOIN users u ON m.created_by_discord_id = u.discord_id
+            WHERE m.is_published = TRUE
+            ORDER BY m.created_at DESC, m.id DESC
+            LIMIT 1";
+    $stmt = $pdo->query($sql);
     return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
 }
 
 /**
- * Aktualisiert oder erstellt die Message of the Day (MOTD).
+ * Holt alle MOTDs für die Admin-Übersicht.
  * @param PDO $pdo
- * @param string $content
- * @param string $admin_discord_id
- * @return bool
+ * @return array
  */
-function updateMotd(PDO $pdo, string $content, string $admin_discord_id): bool {
-    // Prüfen, ob bereits eine MOTD existiert
-    $stmt_check = $pdo->query("SELECT id FROM motd LIMIT 1");
-    $existing_motd = $stmt_check->fetch();
+function getAllMotds(PDO $pdo): array {
+    $sql = "SELECT m.id, m.title, m.is_published, m.version, m.created_at, m.updated_at, u.discord_username as author_username
+            FROM motds m
+            JOIN users u ON m.created_by_discord_id = u.discord_id
+            ORDER BY m.created_at DESC, m.id DESC";
+    $stmt = $pdo->query($sql);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
 
-    if ($existing_motd) {
-        $sql = "UPDATE motd SET content = :content, created_by_discord_id = :admin_id, updated_at = NOW() WHERE id = :id";
-        $params = [
-            ':content' => $content,
-            ':admin_id' => $admin_discord_id,
-            ':id' => $existing_motd['id']
-        ];
-    } else {
-        $sql = "INSERT INTO motd (content, created_by_discord_id) VALUES (:content, :admin_id)";
-        $params = [
-            ':content' => $content,
-            ':admin_id' => $admin_discord_id
-        ];
-    }
+/**
+ * Holt eine spezifische MOTD anhand ihrer ID.
+ * @param PDO $pdo
+ * @param int $motd_id
+ * @return array|null
+ */
+function getMotdById(PDO $pdo, int $motd_id): ?array {
+    $sql = "SELECT m.id, m.title, m.content, m.is_published, m.version, m.created_by_discord_id, u.discord_username as author_username
+            FROM motds m
+            LEFT JOIN users u ON m.created_by_discord_id = u.discord_id
+            WHERE m.id = :motd_id";
+    $stmt = $pdo->prepare($sql);
+    $stmt->bindParam(':motd_id', $motd_id, PDO::PARAM_INT);
+    $stmt->execute();
+    return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+}
 
+
+/**
+ * Erstellt eine neue MOTD.
+ * @param PDO $pdo
+ * @param array $data (Keys: title, content, created_by_discord_id, is_published, version)
+ * @return bool|string ID des neuen Eintrags bei Erfolg, sonst false.
+ */
+function createMotd(PDO $pdo, array $data) {
+    $sql = "INSERT INTO motds (title, content, created_by_discord_id, is_published, version, created_at, updated_at)
+            VALUES (:title, :content, :created_by_discord_id, :is_published, :version, NOW(), NOW())";
     try {
         $stmt = $pdo->prepare($sql);
-        return $stmt->execute($params);
+        $stmt->bindParam(':title', $data['title']);
+        $stmt->bindParam(':content', $data['content']);
+        $stmt->bindParam(':created_by_discord_id', $data['created_by_discord_id']);
+        $stmt->bindParam(':is_published', $data['is_published'], PDO::PARAM_BOOL);
+        $stmt->bindParam(':version', $data['version']);
+
+        if ($stmt->execute()) {
+            return $pdo->lastInsertId();
+        }
+        return false;
+    } catch (PDOException $e) {
+        error_log("Fehler bei createMotd: " . $e->getMessage());
+        return false;
+    }
+}
+
+/**
+ * Aktualisiert eine bestehende MOTD.
+ * @param PDO $pdo
+ * @param int $motd_id
+ * @param array $data (Keys: title, content, is_published, version)
+ * @return bool
+ */
+function updateMotd(PDO $pdo, int $motd_id, array $data): bool {
+    $sql = "UPDATE motds SET title = :title, content = :content, is_published = :is_published, version = :version, updated_at = NOW()
+            WHERE id = :motd_id";
+    try {
+        $stmt = $pdo->prepare($sql);
+        $stmt->bindParam(':title', $data['title']);
+        $stmt->bindParam(':content', $data['content']);
+        $stmt->bindParam(':is_published', $data['is_published'], PDO::PARAM_BOOL);
+        $stmt->bindParam(':version', $data['version']);
+        $stmt->bindParam(':motd_id', $motd_id, PDO::PARAM_INT);
+        return $stmt->execute();
     } catch (PDOException $e) {
         error_log("Fehler bei updateMotd: " . $e->getMessage());
+        return false;
+    }
+}
+
+/**
+ * Löscht eine MOTD.
+ * @param PDO $pdo
+ * @param int $motd_id
+ * @return bool
+ */
+function deleteMotd(PDO $pdo, int $motd_id): bool {
+    $sql = "DELETE FROM motds WHERE id = :motd_id";
+    try {
+        $stmt = $pdo->prepare($sql);
+        $stmt->bindParam(':motd_id', $motd_id, PDO::PARAM_INT);
+        return $stmt->execute();
+    } catch (PDOException $e) {
+        error_log("Fehler bei deleteMotd: " . $e->getMessage());
         return false;
     }
 }
@@ -474,5 +541,66 @@ function getUserSyndicates(PDO $pdo, string $discord_id): array {
 }
 
 // Weitere Funktionen für Syndikate (Hinzufügen, Löschen durch Admin) könnten hier folgen.
+
+
+// --- Changelog Funktionen ---
+
+/**
+ * Erstellt einen neuen Changelog-Eintrag.
+ * @param PDO $pdo
+ * @param string $version_tag
+ * @param string $summary
+ * @param string $admin_discord_id
+ * @return bool|string ID des neuen Eintrags oder false
+ */
+function createChangelogEntry(PDO $pdo, string $version_tag, string $summary, string $admin_discord_id) {
+    $sql = "INSERT INTO changelog (version_tag, summary, created_by_discord_id, created_at)
+            VALUES (:version_tag, :summary, :created_by_discord_id, NOW())";
+    try {
+        $stmt = $pdo->prepare($sql);
+        $stmt->bindParam(':version_tag', $version_tag);
+        $stmt->bindParam(':summary', $summary);
+        $stmt->bindParam(':created_by_discord_id', $admin_discord_id);
+        if ($stmt->execute()) {
+            return $pdo->lastInsertId();
+        }
+        return false;
+    } catch (PDOException $e) {
+        error_log("Fehler bei createChangelogEntry: " . $e->getMessage());
+        return false;
+    }
+}
+
+/**
+ * Holt alle Changelog-Einträge, neueste zuerst.
+ * @param PDO $pdo
+ * @return array
+ */
+function getAllChangelogEntries(PDO $pdo): array {
+    $sql = "SELECT cl.id, cl.version_tag, cl.summary, cl.created_at, u.discord_username as author_username
+            FROM changelog cl
+            LEFT JOIN users u ON cl.created_by_discord_id = u.discord_id
+            ORDER BY cl.created_at DESC, cl.id DESC";
+    $stmt = $pdo->query($sql);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+/**
+ * Löscht einen Changelog-Eintrag.
+ * @param PDO $pdo
+ * @param int $changelog_id
+ * @return bool
+ */
+function deleteChangelogEntry(PDO $pdo, int $changelog_id): bool {
+    $sql = "DELETE FROM changelog WHERE id = :changelog_id";
+    try {
+        $stmt = $pdo->prepare($sql);
+        $stmt->bindParam(':changelog_id', $changelog_id, PDO::PARAM_INT);
+        return $stmt->execute();
+    } catch (PDOException $e) {
+        error_log("Fehler bei deleteChangelogEntry: " . $e->getMessage());
+        return false;
+    }
+}
 
 ?>

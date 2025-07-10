@@ -16,13 +16,27 @@ html {
 }
 
 body {
-    font-family: 'Exo 2', 'Arial', sans-serif; /* Futuristischere Schriftart */
-    background-color: var(--color-background-dark);
+    font-family: 'Exo 2', 'Arial', sans-serif;
     color: var(--color-text-primary);
     display: flex;
     flex-direction: column;
     min-height: 100vh;
+    /* Animierter Hintergrund */
+    background: linear-gradient(315deg,
+                                rgba(var(--color-primary-accent-rgb), 0.05),
+                                var(--color-background-dark) 25%,
+                                var(--color-background-medium) 75%,
+                                rgba(var(--color-secondary-accent-rgb), 0.05));
+    background-size: 400% 400%; /* Wichtig für die Animation des Gradienten */
+    animation: gradientAnimation 45s ease infinite;
 }
+
+@keyframes gradientAnimation {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
 
 .container {
     width: 90%;

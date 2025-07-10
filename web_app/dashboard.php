@@ -30,8 +30,8 @@ if (empty($user['warframe_ign'])) {
     exit;
 }
 
-// MOTD laden
-$motd_data = getMotd($pdo);
+// MOTD laden (nur die neueste veröffentlichte)
+$motd_data = getLatestPublishedMotd($pdo); // Geändert von getMotd zu getLatestPublishedMotd
 
 // Initialisiere Variablen für Formularwerte aus der Datenbank
 $warframe_ign = $user['warframe_ign'] ?? '';
@@ -151,11 +151,26 @@ if(isset($_GET['profile_updated']) && $_GET['profile_updated'] == '1' && !isset(
             <h2>Message of the Day (MOTD)</h2>
         </div>
         <?php if ($motd_data && !empty($motd_data['content'])): ?>
+            <?php if (!empty($motd_data['title'])): ?>
+                <h3><?php echo htmlspecialchars($motd_data['title']); ?></h3>
+            <?php endif; ?>
             <p><?php echo nl2br(htmlspecialchars($motd_data['content'])); ?></p>
-            <p class="meta"><em>Zuletzt aktualisiert am <?php echo date("d.m.Y H:i", strtotime($motd_data['updated_at'])); ?> von <?php echo htmlspecialchars($motd_data['author_username']); ?></em></p>
+            <p class="meta">
+                <em>
+                    Veröffentlicht am <?php echo date("d.m.Y H:i", strtotime($motd_data['updated_at'])); ?>
+                    von <?php echo htmlspecialchars($motd_data['author_username']); ?>
+                    <?php if (!empty($motd_data['version'])): ?>
+                        (Version: <?php echo htmlspecialchars($motd_data['version']); ?>)
+                    <?php endif; ?>
+                </em>
+            </p>
         <?php else: ?>
             <p>Derzeit keine MOTD vorhanden.</p>
         <?php endif; ?>
+        <div class="motd-actions mt-1">
+            <a href="motd_history.php" class="button btn-sm button-secondary">MOTD-Verlauf / Changelog</a>
+            <!-- Später wird dies zu einer Seite führen, die ältere MOTDs und Changelog-Einträge anzeigt -->
+        </div>
     </section>
 
     <section class="card profile-edit-card">

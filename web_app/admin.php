@@ -15,38 +15,102 @@ if (!$is_logged_in || !$is_admin) {
 // Aktive Seite/Tab im Admin-Bereich bestimmen
 $admin_page = $_GET['page'] ?? 'motd'; // Standardseite ist MOTD-Bearbeitung
 
-// MOTD Bearbeitung - Logik
-$motd_content = '';
-$motd_author = '';
-$motd_updated_at = '';
-$current_motd = getMotd($pdo);
-if ($current_motd) {
-    $motd_content = $current_motd['content'];
-    $motd_author = $current_motd['author_username'];
-    $motd_updated_at = $current_motd['updated_at'];
+// MOTD Bearbeitung - Logik (Neues System)
+$all_motds_admin = getAllMotds($pdo); // Für die Liste
+$edit_motd_id = null;
+$edit_motd_title = '';
+$edit_motd_content = '';
+$edit_motd_is_published = true;
+$edit_motd_version = '';
+
+// Laden einer MOTD zum Bearbeiten
+if (isset($_GET['action']) && $_GET['action'] === 'edit_motd' && isset($_GET['motd_id'])) {
+    $edit_motd_id = filter_var($_GET['motd_id'], FILTER_VALIDATE_INT);
+    $motd_to_edit = getMotdById($pdo, $edit_motd_id);
+    if ($motd_to_edit) {
+        $edit_motd_title = $motd_to_edit['title'];
+        $edit_motd_content = $motd_to_edit['content'];
+        $edit_motd_is_published = (bool)$motd_to_edit['is_published'];
+        $edit_motd_version = $motd_to_edit['version'];
+    } else {
+        $_SESSION['global_message'] = "MOTD nicht gefunden.";
+        $_SESSION['global_message_type'] = "error";
+        $edit_motd_id = null; // Zurücksetzen, falls ID ungültig
+    }
 }
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_motd'])) {
-    $new_motd_content = trim($_POST['motd_content'] ?? '');
-    if (empty($new_motd_content)) {
+// Speichern (Erstellen oder Aktualisieren) einer MOTD
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_motd'])) {
+    $motd_id_form = filter_input(INPUT_POST, 'motd_id', FILTER_VALIDATE_INT);
+    $motd_title_form = trim($_POST['motd_title'] ?? '');
+    $motd_content_form = trim($_POST['motd_content'] ?? '');
+    $motd_is_published_form = isset($_POST['motd_is_published']) ? 1 : 0;
+    $motd_version_form = trim($_POST['motd_version'] ?? '');
+
+    if (empty($motd_content_form)) {
         $_SESSION['global_message'] = "MOTD Inhalt darf nicht leer sein.";
         $_SESSION['global_message_type'] = "error";
+        // Formularwerte für erneute Anzeige setzen
+        $edit_motd_id = $motd_id_form;
+        $edit_motd_title = $motd_title_form;
+        $edit_motd_content = $motd_content_form;
+        $edit_motd_is_published = (bool)$motd_is_published_form;
+        $edit_motd_version = $motd_version_form;
     } else {
-        if (updateMotd($pdo, $new_motd_content, $_SESSION['discord_id'])) {
-            $_SESSION['global_message'] = "MOTD erfolgreich aktualisiert!";
+        $data = [
+            'title' => $motd_title_form,
+            'content' => $motd_content_form,
+            'created_by_discord_id' => $_SESSION['discord_id'], // Admin, der es speichert
+            'is_published' => $motd_is_published_form,
+            'version' => $motd_version_form
+        ];
+
+        $success = false;
+        if ($motd_id_form) { // Bearbeiten
+            $success = updateMotd($pdo, $motd_id_form, $data);
+            $action_msg = "aktualisiert";
+        } else { // Erstellen
+            $new_motd_id = createMotd($pdo, $data);
+            if ($new_motd_id) {
+                $success = true;
+            }
+            $action_msg = "erstellt";
+        }
+
+        if ($success) {
+            $_SESSION['global_message'] = "MOTD erfolgreich {$action_msg}!";
             $_SESSION['global_message_type'] = "success";
-            // Seite neu laden, um Änderungen anzuzeigen und Form Resubmission zu verhindern
-            header("Location: " . BASE_URL . "/admin.php?page=motd&motd_updated=1");
+            header("Location: " . BASE_URL . "/admin.php?page=motd&motd_saved=1");
             exit;
         } else {
-            $_SESSION['global_message'] = "Fehler beim Aktualisieren der MOTD.";
+            $_SESSION['global_message'] = "Fehler beim Speichern der MOTD.";
+            $_SESSION['global_message_type'] = "error";
+            // Formularwerte für erneute Anzeige setzen
+            $edit_motd_id = $motd_id_form;
+            $edit_motd_title = $motd_title_form;
+            $edit_motd_content = $motd_content_form;
+            $edit_motd_is_published = (bool)$motd_is_published_form;
+            $edit_motd_version = $motd_version_form;
+        }
+    }
+    $admin_page = 'motd'; // Bleibe auf der MOTD-Seite bei Fehlern oder wenn kein Redirect
+}
+
+// Löschen einer MOTD
+if (isset($_GET['action']) && $_GET['action'] === 'delete_motd' && isset($_GET['motd_id'])) {
+    $motd_id_to_delete = filter_var($_GET['motd_id'], FILTER_VALIDATE_INT);
+    if ($motd_id_to_delete) {
+        if (deleteMotd($pdo, $motd_id_to_delete)) {
+            $_SESSION['global_message'] = "MOTD erfolgreich gelöscht.";
+            $_SESSION['global_message_type'] = "success";
+        } else {
+            $_SESSION['global_message'] = "Fehler beim Löschen der MOTD.";
             $_SESSION['global_message_type'] = "error";
         }
     }
-    // Um die Eingabe bei Fehler im Formular zu behalten:
-    $motd_content = $new_motd_content;
+    header("Location: " . BASE_URL . "/admin.php?page=motd&motd_action_done=1");
+    exit;
 }
-
 
 // Custom Titles - Logik
 $all_titles = getAllCustomTitles($pdo);
@@ -191,27 +255,80 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_user_admin_sta
 
 <nav class="admin-nav">
     <ul>
-        <li><a href="admin.php?page=motd" class="<?php echo ($admin_page === 'motd') ? 'active' : ''; ?>">MOTD Bearbeiten</a></li>
+        <li><a href="admin.php?page=motd" class="<?php echo ($admin_page === 'motd') ? 'active' : ''; ?>">MOTD Verwalten</a></li>
         <li><a href="admin.php?page=titles" class="<?php echo ($admin_page === 'titles' || (isset($_GET['action']) && strpos($_GET['action'], 'title') !== false) ) ? 'active' : ''; ?>">Titel Verwalten</a></li>
         <li><a href="admin.php?page=users" class="<?php echo ($admin_page === 'users' || $admin_page === 'edit_user') ? 'active' : ''; ?>">Benutzer Verwalten</a></li>
-        <!-- Weitere Admin-Seiten hier hinzufügen -->
+        <li><a href="admin.php?page=changelog" class="<?php echo ($admin_page === 'changelog') ? 'active' : ''; ?>">Changelog Verwalten</a></li>
     </ul>
 </nav>
 
 <div class="admin-content mt-2">
     <?php if ($admin_page === 'motd'): ?>
         <section class="card">
-            <div class="card-header"><h2>Message of the Day (MOTD) bearbeiten</h2></div>
-            <form action="admin.php?page=motd" method="POST">
+            <div class="card-header"><h2>MOTD Verwaltung</h2></div>
+
+            <form action="admin.php?page=motd" method="POST" class="mb-2 card" style="background-color: var(--color-background-light);">
+                <input type="hidden" name="motd_id" value="<?php echo $edit_motd_id ? htmlspecialchars($edit_motd_id) : ''; ?>">
+                <h4><?php echo $edit_motd_id ? 'MOTD Bearbeiten (ID: '.htmlspecialchars($edit_motd_id).')' : 'Neue MOTD erstellen'; ?></h4>
+
                 <div class="form-group">
-                    <label for="motd_content">MOTD Inhalt:</label>
-                    <textarea name="motd_content" id="motd_content" rows="10" class="form-control" required><?php echo htmlspecialchars($motd_content); ?></textarea>
+                    <label for="motd_title">Titel (Optional):</label>
+                    <input type="text" name="motd_title" id="motd_title" value="<?php echo htmlspecialchars($edit_motd_title); ?>">
                 </div>
-                <?php if ($motd_author && $motd_updated_at): ?>
-                <p><small>Zuletzt aktualisiert am <?php echo date("d.m.Y H:i", strtotime($motd_updated_at)); ?> von <?php echo htmlspecialchars($motd_author); ?></small></p>
+                <div class="form-group">
+                    <label for="motd_content">Inhalt:</label>
+                    <textarea name="motd_content" id="motd_content" rows="8" required><?php echo htmlspecialchars($edit_motd_content); ?></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="motd_version">Version (Optional, z.B. Patchnummer):</label>
+                    <input type="text" name="motd_version" id="motd_version" value="<?php echo htmlspecialchars($edit_motd_version); ?>">
+                </div>
+                <div class="form-group">
+                    <input type="checkbox" name="motd_is_published" id="motd_is_published" value="1" <?php echo $edit_motd_is_published ? 'checked' : ''; ?>>
+                    <label for="motd_is_published" style="display:inline; font-weight:normal;">Veröffentlicht (Sichtbar für User)</label>
+                </div>
+                <button type="submit" name="save_motd" class="button"><?php echo $edit_motd_id ? 'Änderungen Speichern' : 'MOTD Erstellen'; ?></button>
+                <?php if ($edit_motd_id): ?>
+                    <a href="admin.php?page=motd" class="button button-secondary">Abbrechen / Neu erstellen</a>
                 <?php endif; ?>
-                <button type="submit" name="update_motd" class="button">MOTD Speichern</button>
             </form>
+
+            <h4 class="mt-2">MOTD Verlauf</h4>
+            <?php if (empty($all_motds_admin)): ?>
+                <p>Noch keine MOTDs vorhanden.</p>
+            <?php else: ?>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Titel</th>
+                            <th>Version</th>
+                            <th>Status</th>
+                            <th>Autor</th>
+                            <th>Erstellt</th>
+                            <th>Aktualisiert</th>
+                            <th>Aktionen</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($all_motds_admin as $motd_item): ?>
+                        <tr>
+                            <td><?php echo htmlspecialchars($motd_item['id']); ?></td>
+                            <td><?php echo htmlspecialchars(!empty($motd_item['title']) ? $motd_item['title'] : '<em>Kein Titel</em>'); ?></td>
+                            <td><?php echo htmlspecialchars($motd_item['version'] ?? '-'); ?></td>
+                            <td><?php echo $motd_item['is_published'] ? '<span class="text-success">Veröffentlicht</span>' : '<span class="text-warning">Entwurf</span>'; ?></td>
+                            <td><?php echo htmlspecialchars($motd_item['author_username']); ?></td>
+                            <td><?php echo date("d.m.Y H:i", strtotime($motd_item['created_at'])); ?></td>
+                            <td><?php echo date("d.m.Y H:i", strtotime($motd_item['updated_at'])); ?></td>
+                            <td>
+                                <a href="admin.php?page=motd&action=edit_motd&motd_id=<?php echo $motd_item['id']; ?>" class="button btn-sm">Bearbeiten</a>
+                                <a href="admin.php?page=motd&action=delete_motd&motd_id=<?php echo $motd_item['id']; ?>" class="button button-danger btn-sm" onclick="return confirm('Bist du sicher, dass du diese MOTD (ID: <?php echo $motd_item['id']; ?>) löschen möchtest?');">Löschen</a>
+                            </td>
+                        </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            <?php endif; ?>
         </section>
 
     <?php elseif ($admin_page === 'titles'): ?>
@@ -343,6 +460,91 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_user_admin_sta
                 <button type="submit" name="update_user_admin_status" class="button">Admin-Status Speichern</button>
                 <a href="admin.php?page=users" class="button button-secondary">Zurück zur Benutzerübersicht</a>
             </form>
+        </section>
+
+    <?php elseif ($admin_page === 'changelog'):
+        $all_changelog_entries = getAllChangelogEntries($pdo);
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_changelog_entry'])) {
+            $changelog_version_tag = trim($_POST['changelog_version_tag'] ?? '');
+            $changelog_summary = trim($_POST['changelog_summary'] ?? '');
+
+            if (empty($changelog_version_tag) || empty($changelog_summary)) {
+                $_SESSION['global_message'] = "Version-Tag und Zusammenfassung dürfen nicht leer sein.";
+                $_SESSION['global_message_type'] = "error";
+            } else {
+                if (createChangelogEntry($pdo, $changelog_version_tag, $changelog_summary, $_SESSION['discord_id'])) {
+                    $_SESSION['global_message'] = "Changelog-Eintrag erfolgreich erstellt.";
+                    $_SESSION['global_message_type'] = "success";
+                    header("Location: " . BASE_URL . "/admin.php?page=changelog&changelog_saved=1");
+                    exit;
+                } else {
+                    $_SESSION['global_message'] = "Fehler beim Erstellen des Changelog-Eintrags.";
+                    $_SESSION['global_message_type'] = "error";
+                }
+            }
+        }
+
+        if (isset($_GET['action']) && $_GET['action'] === 'delete_changelog' && isset($_GET['changelog_id'])) {
+            $changelog_id_to_delete = filter_var($_GET['changelog_id'], FILTER_VALIDATE_INT);
+            if ($changelog_id_to_delete && deleteChangelogEntry($pdo, $changelog_id_to_delete)) {
+                $_SESSION['global_message'] = "Changelog-Eintrag erfolgreich gelöscht.";
+                $_SESSION['global_message_type'] = "success";
+            } else {
+                $_SESSION['global_message'] = "Fehler beim Löschen des Changelog-Eintrags.";
+                $_SESSION['global_message_type'] = "error";
+            }
+            header("Location: " . BASE_URL . "/admin.php?page=changelog&changelog_action_done=1");
+            exit;
+        }
+    ?>
+        <section class="card">
+            <div class="card-header"><h2>Changelog Verwalten</h2></div>
+            <form action="admin.php?page=changelog" method="POST" class="mb-2 card" style="background-color: var(--color-background-light);">
+                <h4>Neuen Changelog-Eintrag erstellen</h4>
+                <div class="form-group">
+                    <label for="changelog_version_tag">Version / Tag (z.B. 1.0.1, Hotfix-Datum):</label>
+                    <input type="text" name="changelog_version_tag" id="changelog_version_tag" required>
+                </div>
+                <div class="form-group">
+                    <label for="changelog_summary">Zusammenfassung der Änderungen (Markdown erlaubt für Listen etc.):</label>
+                    <textarea name="changelog_summary" id="changelog_summary" rows="5" required></textarea>
+                </div>
+                <button type="submit" name="save_changelog_entry" class="button">Changelog-Eintrag Speichern</button>
+            </form>
+
+            <h4 class="mt-2">Bestehende Changelog-Einträge</h4>
+            <?php if (empty($all_changelog_entries)): ?>
+                <p>Noch keine Changelog-Einträge vorhanden.</p>
+            <?php else: ?>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Version/Tag</th>
+                            <th>Zusammenfassung (Auszug)</th>
+                            <th>Autor</th>
+                            <th>Datum</th>
+                            <th>Aktionen</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($all_changelog_entries as $entry): ?>
+                        <tr>
+                            <td><?php echo htmlspecialchars($entry['id']); ?></td>
+                            <td><?php echo htmlspecialchars($entry['version_tag']); ?></td>
+                            <td><?php echo nl2br(htmlspecialchars(substr($entry['summary'], 0, 100) . (strlen($entry['summary']) > 100 ? '...' : ''))); ?></td>
+                            <td><?php echo htmlspecialchars($entry['author_username'] ?? 'N/A'); ?></td>
+                            <td><?php echo date("d.m.Y H:i", strtotime($entry['created_at'])); ?></td>
+                            <td>
+                                <a href="admin.php?page=changelog&action=delete_changelog&changelog_id=<?php echo $entry['id']; ?>" class="button button-danger btn-sm" onclick="return confirm('Bist du sicher, dass du diesen Changelog-Eintrag löschen möchtest?');">Löschen</a>
+                                <!-- Bearbeiten-Funktion könnte hier noch hinzugefügt werden -->
+                            </td>
+                        </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            <?php endif; ?>
         </section>
 
 
