@@ -118,8 +118,8 @@ function updateUserDiscordDetails(PDO $pdo, string $discord_id, string $discord_
 function updateUserProfile(PDO $pdo, string $discord_id, array $data): bool {
     $allowed_fields = [
         'warframe_ign', 'about_me', 'nickname', 'age',
-        'origin', 'main_frame', 'weapons', 'steam_profile', 'nintendo_friend_code',
-        'custom_avatar_path' // Neues Feld hinzugefügt
+        'origin', 'main_frame', 'weapons', 'steam_profile', 'nintendo_friend_code'
+        // 'custom_avatar_path' entfernt
     ];
 
     $fields_to_update = [];
@@ -360,7 +360,7 @@ function getProfileComments(PDO $pdo, string $profile_discord_id): array {
     $sql = "SELECT pc.id, pc.comment, pc.created_at,
                    u.discord_username as author_username,
                    u.discord_avatar_url as author_discord_avatar_url,
-                   u.custom_avatar_path as author_custom_avatar_path,
+                   -- u.custom_avatar_path as author_custom_avatar_path, -- Entfernt
                    u.discord_id as author_discord_id
             FROM profile_comments pc
             JOIN users u ON pc.author_discord_id = u.discord_id
@@ -444,10 +444,10 @@ function deleteProfileComment(PDO $pdo, int $comment_id, string $current_user_di
  */
 function getAllUsersForList(PDO $pdo): array {
     // Wähle relevante Felder für die Liste, ggf. JOIN mit custom_titles
-    $sql = "SELECT u.discord_id, u.discord_username, u.discord_avatar_url, u.custom_avatar_path, u.warframe_ign, ct.title_name as custom_title
+    $sql = "SELECT u.discord_id, u.discord_username, u.discord_avatar_url, u.warframe_ign, ct.title_name as custom_title
             FROM users u
             LEFT JOIN custom_titles ct ON u.custom_title_id = ct.id
-            ORDER BY u.discord_username ASC";
+            ORDER BY u.discord_username ASC"; // u.custom_avatar_path entfernt
     $stmt = $pdo->query($sql);
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }

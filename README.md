@@ -1,7 +1,7 @@
 # Endo Reserve Bank Community-Plattform
 
 Willkommen bei der Endo Reserve Bank Community-Plattform! Dieses Projekt stellt eine Webseite für den Warframe-Clan "Endo Reserve Bank" bereit, inklusive eines Mitgliederbereichs und eines Discord-Verifizierungs-Bots.
-Die Plattform bietet Funktionen wie Benutzerprofile (mit Discord-Avatar-Synchronisierung und der Möglichkeit, eigene Avatare hochzuladen), eine Mitgliederliste, MOTD, ein System für Custom Titles, einen Build-Kosten-Rechner und ein Admin-Panel. <!-- Erweitert -->
+Die Plattform bietet Funktionen wie Benutzerprofile (mit Discord-Avatar-Synchronisierung), eine Mitgliederliste, MOTD, ein System für Custom Titles, einen Build-Kosten-Rechner und ein Admin-Panel. <!-- Custom Avatar Upload entfernt -->
 
 ## Inhaltsverzeichnis
 
@@ -103,7 +103,6 @@ Du kannst dies in den PHP-Einstellungen deiner Domain im Plesk Panel überprüfe
     ```
     **Wichtig:** Die Datei `config.example.php` ist eine Vorlage. Du wirst sie später in `config.php` umbenennen/kopieren und deine spezifischen Daten eintragen. Die Datei `schema.sql` wird für die Erstellung der Datenbankstruktur benötigt.
     Die Bilder im `assets/images/` Ordner (`discord_logo.svg`, `default_avatar.png`, `platinum.png`) sollten idealerweise von dir bereitgestellt werden. Falls sie fehlen, wird die Seite trotzdem funktionieren, aber Icons/Bilder könnten fehlen.
-    Ebenso wird ein Ordner `uploads/avatars/` für von Benutzern hochgeladene Profilbilder erstellt. Stelle sicher, dass dieser Ordner auf deinem Webserver existiert und vom Webserver-Benutzer (z.B. `www-data`, `apache`, oder der Plesk-Subscription-User) **beschreibbar** ist. Die genauen Berechtigungen können `755` oder `775` für den Ordner sein, abhängig von deiner Serverkonfiguration.
 
 ### Datenbank einrichten (Plesk)
 
@@ -142,12 +141,6 @@ Die Web-Anwendung benötigt eine MySQL-Datenbank, um Benutzerdaten, MOTD, Kommen
     *   Wenn der Import erfolgreich war, siehst du eine Erfolgsmeldung und in der linken Navigationsleiste unter deiner Datenbank die neu erstellten Tabellen (`users`, `motd`, `custom_titles`, `profile_comments`, `user_syndicates`).
 
     Deine Datenbank ist nun eingerichtet und bereit für die Konfiguration der PHP-Anwendung.
-
-    **Für bestehende Installationen (Updates):**
-    Falls du von einer früheren Version dieser Plattform aktualisierst, die die `custom_avatar_path`-Spalte noch nicht hatte, führe bitte folgenden SQL-Befehl in phpMyAdmin für deine Datenbank aus, um die Spalte hinzuzufügen:
-    ```sql
-    ALTER TABLE `users` ADD `custom_avatar_path` VARCHAR(255) DEFAULT NULL AFTER `discord_avatar_url`;
-    ```
 
 ### Konfiguration (PHP)
 

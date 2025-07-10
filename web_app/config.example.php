@@ -28,7 +28,7 @@ define('SITE_NAME', 'Endo Reserve Bank - Warframe Clan DE'); // Angepasst
 define('BASE_URL', 'https://dojo.chelo.lat'); // Deine Basis-URL ohne Slash am Ende
 
 // --- Fehlerbehandlung (für Entwicklung true, für Produktion false) ---
-define('DEBUG_MODE', true); // Für Entwicklung true, für Produktion false
+define('DEBUG_MODE', false); // Standard auf false für Produktion
 
 if (DEBUG_MODE) {
     ini_set('display_errors', 1);

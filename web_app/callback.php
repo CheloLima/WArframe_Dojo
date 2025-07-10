@@ -145,7 +145,7 @@ if ($bot_status === "SUCCESS") {
     $_SESSION['discord_id'] = $user['discord_id'];
     $_SESSION['discord_username'] = $user['discord_username'];
     $_SESSION['discord_avatar_url'] = $user['discord_avatar_url'];
-    $_SESSION['custom_avatar_path'] = $user['custom_avatar_path']; // NEU: Custom Avatar Path in Session
+    // $_SESSION['custom_avatar_path'] = $user['custom_avatar_path']; // Entfernt
     $_SESSION['isAdmin'] = (bool)$user['isAdmin'];
     $_SESSION['last_activity'] = time(); // Aktivität aktualisieren
 

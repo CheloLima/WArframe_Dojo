@@ -109,10 +109,8 @@ if ($current_page !== 'logout.php') {
                         <li>
                             <a href="<?php echo BASE_URL; ?>/logout.php" class="nav-user-link">
                                 <?php
-                                $nav_avatar_url = BASE_URL . '/assets/images/default_avatar.png';
-                                if (!empty($_SESSION['custom_avatar_path']) && file_exists(__DIR__ . '/../' . $_SESSION['custom_avatar_path'])) {
-                                    $nav_avatar_url = BASE_URL . '/' . htmlspecialchars($_SESSION['custom_avatar_path']) . '?v=' . time();
-                                } elseif (!empty($_SESSION['discord_avatar_url'])) {
+                                $nav_avatar_url = BASE_URL . '/assets/images/default_avatar.png'; // Default
+                                if (!empty($_SESSION['discord_avatar_url'])) { // custom_avatar_path aus Session entfernt
                                     $nav_avatar_url = htmlspecialchars($_SESSION['discord_avatar_url']);
                                 }
                                 ?>

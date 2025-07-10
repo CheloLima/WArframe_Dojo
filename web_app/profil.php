@@ -92,9 +92,7 @@ define('PAGE_TITLE_DYNAMIC', 'Profil von ' . htmlspecialchars($profile_user['dis
 
 // Avatar URL Logik
 $display_profile_avatar_url = BASE_URL . '/assets/images/default_avatar.png'; // Default
-if (!empty($profile_user['custom_avatar_path']) && file_exists(__DIR__ . '/' . $profile_user['custom_avatar_path'])) {
-    $display_profile_avatar_url = BASE_URL . '/' . htmlspecialchars($profile_user['custom_avatar_path']) . '?v=' . time();
-} elseif (!empty($profile_user['discord_avatar_url'])) {
+if (!empty($profile_user['discord_avatar_url'])) {
     $display_profile_avatar_url = htmlspecialchars($profile_user['discord_avatar_url']);
 }
 
@@ -222,12 +220,8 @@ if (!empty($profile_user['custom_avatar_path']) && file_exists(__DIR__ . '/' . $
             <?php foreach ($comments as $comment): ?>
                 <?php
                 // Avatar-Logik für Kommentatoren
-                // Wichtig: $comment enthält 'author_custom_avatar_path' und 'author_discord_avatar_url'
-                // Diese müssen in getProfileComments() in user_functions.php hinzugefügt werden.
                 $comment_author_display_url = BASE_URL . '/assets/images/default_avatar.png'; // Default
-                if (!empty($comment['author_custom_avatar_path']) && file_exists(__DIR__ . '/' . $comment['author_custom_avatar_path'])) {
-                    $comment_author_display_url = BASE_URL . '/' . htmlspecialchars($comment['author_custom_avatar_path']) . '?v=' . time();
-                } elseif (!empty($comment['author_discord_avatar_url'])) {
+                if (!empty($comment['author_discord_avatar_url'])) { // custom_avatar_path wurde aus getProfileComments entfernt
                     $comment_author_display_url = htmlspecialchars($comment['author_discord_avatar_url']);
                 }
                 ?>

@@ -1,8 +1,4 @@
 <?php
-// Temporäres Fehler-Reporting für die Diagnose des 500er Fehlers
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-
 // Lade Konfiguration für Session-Namen, BASE_URL etc.
 // Dies wird config.php laden, welche auch ini_set für Session-Parameter enthält.
 if (file_exists(__DIR__ . '/config.php')) {

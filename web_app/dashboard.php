@@ -1,8 +1,4 @@
 <?php
-// Temporäres Fehler-Reporting für die Diagnose
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-
 define('PAGE_TITLE', 'Dashboard');
 require_once __DIR__ . '/includes/header.php'; // Session, $is_logged_in
 require_once __DIR__ . '/includes/db.php';     // $pdo
@@ -51,51 +47,10 @@ $nintendo_friend_code = $user['nintendo_friend_code'] ?? '';
 $errors = [];
 // $success_message = ''; // Wird jetzt über $_SESSION['global_message'] gehandhabt
 
-$upload_dir = __DIR__ . '/uploads/avatars/'; // Sicherstellen, dass dieser Pfad korrekt ist und existiert
+// $upload_dir = __DIR__ . '/uploads/avatars/'; // Nicht mehr benötigt
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
-    // Avatar-Verarbeitung zuerst
-    $custom_avatar_path_to_db = $user['custom_avatar_path']; // Behalte alten Pfad, falls nichts passiert
-
-    // 1. Custom Avatar löschen?
-    if (isset($_POST['delete_custom_avatar']) && $_POST['delete_custom_avatar'] == '1') {
-        if (!empty($user['custom_avatar_path']) && file_exists($upload_dir . basename($user['custom_avatar_path']))) {
-            unlink($upload_dir . basename($user['custom_avatar_path'])); // Lösche alte Datei
-        }
-        $custom_avatar_path_to_db = null; // Setze Pfad in DB auf NULL
-        // Update DB sofort oder zusammen mit anderen Profildaten
-    }
-
-    // 2. Neuer Custom Avatar hochgeladen?
-    if (isset($_FILES['custom_avatar']) && $_FILES['custom_avatar']['error'] === UPLOAD_ERR_OK) {
-        $file = $_FILES['custom_avatar'];
-        $allowed_types = ['image/jpeg', 'image/png', 'image/gif'];
-        $max_size = 2 * 1024 * 1024; // 2MB
-
-        if (!in_array($file['type'], $allowed_types)) {
-            $errors['custom_avatar'] = "Ungültiger Dateityp. Nur JPG, PNG, GIF erlaubt.";
-        } elseif ($file['size'] > $max_size) {
-            $errors['custom_avatar'] = "Datei ist zu groß (max. 2MB).";
-        } else {
-            // Eindeutigen Dateinamen generieren
-            $extension = pathinfo($file['name'], PATHINFO_EXTENSION);
-            $unique_filename = $_SESSION['discord_id'] . '_' . time() . '.' . $extension;
-            $target_path = $upload_dir . $unique_filename;
-
-            if (move_uploaded_file($file['tmp_name'], $target_path)) {
-                // Alten Custom-Avatar löschen, falls vorhanden
-                if (!empty($user['custom_avatar_path']) && $user['custom_avatar_path'] !== 'uploads/avatars/' . $unique_filename && file_exists($upload_dir . basename($user['custom_avatar_path']))) {
-                    unlink($upload_dir . basename($user['custom_avatar_path']));
-                }
-                $custom_avatar_path_to_db = 'uploads/avatars/' . $unique_filename; // Relativer Pfad für DB
-            } else {
-                $errors['custom_avatar'] = "Fehler beim Hochladen der Datei.";
-            }
-        }
-    } elseif (isset($_FILES['custom_avatar']) && $_FILES['custom_avatar']['error'] !== UPLOAD_ERR_NO_FILE) {
-        // Fehler beim Upload, außer es wurde einfach keine Datei ausgewählt
-        $errors['custom_avatar'] = "Fehler beim Datei-Upload: Code " . $_FILES['custom_avatar']['error'];
-    }
+    // Avatar-Verarbeitung entfernt
 
     // Formulardaten für Profil abrufen und bereinigen
     $warframe_ign_form = trim($_POST['warframe_ign'] ?? '');
@@ -136,11 +91,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
             'main_frame' => $main_frame_form,
             'weapons' => $weapons_form,
             'steam_profile' => $steam_profile_form,
-            'nintendo_friend_code' => $nintendo_friend_code_form,
-            'custom_avatar_path' => $custom_avatar_path_to_db // Hinzugefügt
+            'nintendo_friend_code' => $nintendo_friend_code_form
+            // 'custom_avatar_path' => $custom_avatar_path_to_db // Entfernt
         ];
 
-        if (empty($errors) && updateUserProfile($pdo, $_SESSION['discord_id'], $data_to_update)) { // Prüfe $errors auch hier
+        if (empty($errors) && updateUserProfile($pdo, $_SESSION['discord_id'], $data_to_update)) {
             $_SESSION['global_message'] = "Profil erfolgreich aktualisiert!";
             $_SESSION['global_message_type'] = "success";
             // Daten neu laden für die Anzeige im Formular und auf der Seite
@@ -212,19 +167,25 @@ if(isset($_GET['profile_updated']) && $_GET['profile_updated'] == '1' && !isset(
             <div class="message error"><?php echo htmlspecialchars($errors['general']); ?></div>
         <?php endif; ?>
 
-        <form action="dashboard.php" method="POST" enctype="multipart/form-data"> <!-- Wichtig: enctype für Datei-Uploads -->
+        <form action="dashboard.php" method="POST"> <!-- enctype entfernt -->
             <input type="hidden" name="update_profile" value="1">
 
             <fieldset>
                 <legend>Avatar</legend>
                 <div class="current-avatar-section">
-                    <p>Aktueller Avatar:</p>
+                    <p>Aktueller Avatar (von Discord):</p>
                     <?php
-                    // Diese Logik ist bereits oben im File, wenn $user geladen wird.
-                    // $display_avatar_url wurde bereits für die Vorschau im Formular-Teil initialisiert.
-                    // Hier verwenden wir die Variable $display_avatar_url, die schon existiert.
+                    // $display_avatar_url wird jetzt nur noch Discord oder Default sein
+                    // und sollte bereits oben im Skript korrekt gesetzt werden, wenn $user geladen wird.
+                    // Hier stellen wir sicher, dass es für die Anzeige im Formular aktualisiert wird,
+                    // falls es durch POST-Aktionen (die jetzt keine Avatar-Änderungen mehr machen) beeinflusst wurde.
+                    // Die Logik zur Avatar-Anzeige muss ggf. noch oben im PHP-Block angepasst werden.
+                    $current_display_avatar_url = BASE_URL . '/assets/images/default_avatar.png'; // Default
+                    if (!empty($user['discord_avatar_url'])) {
+                        $current_display_avatar_url = htmlspecialchars($user['discord_avatar_url']);
+                    }
                     ?>
-                    <img src="<?php echo $display_avatar_url; ?>" alt="Aktueller Avatar" class="profile-avatar-preview">
+                    <img src="<?php echo $current_display_avatar_url; ?>" alt="Aktueller Avatar" class="profile-avatar-preview">
                 </div>
 
                 <div class="form-group">
@@ -232,20 +193,6 @@ if(isset($_GET['profile_updated']) && $_GET['profile_updated'] == '1' && !isset(
                     <a href="logout.php?action=resync_avatar&return_to=dashboard.php" class="button button-secondary btn-sm">Discord-Avatar neu laden/synchronisieren</a>
                     <p class="form-hint"><small>Hinweis: Dies erfordert einen kurzen Logout und erneuten Login, um das aktuellste Discord-Profilbild zu laden.</small></p>
                 </div>
-
-                <hr style="margin: 1.5rem 0;">
-
-                <div class="form-group">
-                    <label for="custom_avatar">Eigenen Avatar hochladen (Optional, max. 2MB, JPG/PNG/GIF):</label>
-                    <input type="file" name="custom_avatar" id="custom_avatar" accept="image/jpeg,image/png,image/gif">
-                    <?php if (!empty($errors['custom_avatar'])): ?><p class="message error-text"><?php echo htmlspecialchars($errors['custom_avatar']); ?></p><?php endif; ?>
-                </div>
-                <?php if (!empty($user['custom_avatar_path'])): ?>
-                <div class="form-group">
-                    <input type="checkbox" name="delete_custom_avatar" id="delete_custom_avatar" value="1">
-                    <label for="delete_custom_avatar" style="display:inline; font-weight:normal;">Eigenen Avatar löschen (und zum Discord/Default-Avatar zurückkehren)</label>
-                </div>
-                <?php endif; ?>
             </fieldset>
 
             <fieldset>

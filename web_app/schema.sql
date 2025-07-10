@@ -42,7 +42,7 @@ CREATE TABLE `users` (
   `custom_title_id` INT DEFAULT NULL,
   `discord_username` VARCHAR(255) NOT NULL,
   `discord_avatar_url` VARCHAR(255) DEFAULT NULL,
-  `custom_avatar_path` VARCHAR(255) DEFAULT NULL,
+  -- `custom_avatar_path` VARCHAR(255) DEFAULT NULL, -- Entfernt
   `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`discord_id`)
@@ -51,7 +51,8 @@ CREATE TABLE `users` (
 --
 -- Daten für Tabelle `users`
 --
-
+-- Das INSERT Statement muss angepasst werden, da die Spalte custom_avatar_path entfernt wurde.
+-- Da es aber ohnehin NULL war, kann die Spalte einfach aus der Liste entfernt werden.
 INSERT INTO `users` (`discord_id`, `warframe_ign`, `about_me`, `nickname`, `age`, `origin`, `main_frame`, `weapons`, `steam_profile`, `nintendo_friend_code`, `isAdmin`, `custom_title_id`, `discord_username`, `discord_avatar_url`, `created_at`, `updated_at`) VALUES
 ('1020559274012852294', 'InitialAdminIGN', 'Super Admin Account', 'CheloAdmin', NULL, NULL, NULL, NULL, NULL, NULL, TRUE, 1, 'InitialAdmin', NULL, NOW(), NOW());
 

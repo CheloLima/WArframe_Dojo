@@ -41,14 +41,12 @@ $members = getAllUsersForList($pdo);
                 <div class="member-list-item card">
                     <div class="member-avatar-container">
                         <?php
-                        $display_avatar_url_member = BASE_URL . '/assets/images/default_avatar.png'; // Default
-                        if (!empty($member['custom_avatar_path']) && file_exists(__DIR__ . '/' . $member['custom_avatar_path'])) {
-                            $display_avatar_url_member = BASE_URL . '/' . htmlspecialchars($member['custom_avatar_path']) . '?v=' . time();
-                        } elseif (!empty($member['discord_avatar_url'])) {
-                            $display_avatar_url_member = htmlspecialchars($member['discord_avatar_url']);
+                        $avatar_url_member = BASE_URL . '/assets/images/default_avatar.png'; // Default
+                        if (!empty($member['discord_avatar_url'])) {
+                            $avatar_url_member = htmlspecialchars($member['discord_avatar_url']);
                         }
                         ?>
-                        <img src="<?php echo $display_avatar_url_member; ?>" alt="Avatar von <?php echo htmlspecialchars($member['discord_username']); ?>" class="member-avatar">
+                        <img src="<?php echo $avatar_url_member; ?>" alt="Avatar von <?php echo htmlspecialchars($member['discord_username']); ?>" class="member-avatar">
                     </div>
                     <div class="member-info">
                         <h4><?php echo htmlspecialchars($member['discord_username']); ?></h4>
