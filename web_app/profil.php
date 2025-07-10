@@ -102,7 +102,7 @@ if (!empty($profile_user['discord_avatar_url'])) {
 
 <div class="profile-page card">
     <div class="profile-header">
-        <img src="<?php echo $profile_avatar_url; ?>" alt="Avatar von <?php echo htmlspecialchars($profile_user['discord_username']); ?>" class="profile-avatar">
+        <img src="<?php echo $display_profile_avatar_url; // Korrekter Variablenname hier bereits verwendet, Fehler muss woanders sein oder alter Stand wurde gezeigt. Ich stelle sicher, dass es konsistent ist. ?>" alt="Avatar von <?php echo htmlspecialchars($profile_user['discord_username']); ?>" class="profile-avatar">
         <div class="profile-main-info">
             <h1><?php echo htmlspecialchars($profile_user['discord_username']); ?></h1>
             <?php if ($custom_title_name): ?>

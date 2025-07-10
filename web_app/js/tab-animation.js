@@ -1,49 +1,49 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const baseTitle = document.title;
-    const animationFrames = [
-        "💰 Endo Reserve Bank",
-        "💎 Endo Reserve Bank",
-        "E💰do Reserve Bank",
-        "E💎do Reserve Bank",
-        "En💰o Reserve Bank",
-        "En💎o Reserve Bank",
-        "End💰 Reserve Bank",
-        "End💎 Reserve Bank",
-        "Endo💰Reserve Bank",
-        "Endo💎Reserve Bank",
-        "Endo 💰eserve Bank",
-        "Endo 💎eserve Bank",
-        "Endo R💰serve Bank",
-        "Endo R💎serve Bank",
-        "Endo Re💰erve Bank",
-        "Endo Re💎erve Bank",
-        "Endo Res💰rve Bank",
-        "Endo Res💎rve Bank",
-        "Endo Rese💰ve Bank",
-        "Endo Rese💎ve Bank",
-        "Endo Reser💰e Bank",
-        "Endo Reser💎e Bank",
-        "Endo Reserv💰 Bank",
-        "Endo Reserv💎 Bank",
-        "Endo Reserve💰Bank",
-        "Endo Reserve💎Bank",
-        "Endo Reserve 💰ank",
-        "Endo Reserve 💎ank",
-        "Endo Reserve B💰nk",
-        "Endo Reserve B💎nk",
-        "Endo Reserve Ba💰k",
-        "Endo Reserve Ba💎k",
-        "Endo Reserve Ban💰",
-        "Endo Reserve Ban💎",
-    ];
+    const baseTitle = document.title; // Speichert den ursprünglichen Titel
+    const siteName = "Endo Reserve Bank";
+    const symbols = ["💰", "💎"];
+    let currentSymbolIndex = 0;
+    let currentPosition = -1; // Startet vor dem String
+    const animationFrames = []; // Wird dynamisch generiert
+
+    // Generiere Frames für die Animation
+    function generateFrames() {
+        animationFrames.length = 0; // Array leeren
+        const symbol = symbols[currentSymbolIndex];
+        const nameWithSymbol = [];
+
+        // Welle vorwärts
+        for (let i = 0; i <= siteName.length; i++) {
+            let frame = "";
+            for (let j = 0; j < siteName.length; j++) {
+                if (j === i) {
+                    frame += symbol;
+                }
+                frame += siteName[j];
+            }
+            if (i === siteName.length) { // Symbol am Ende
+                frame = siteName + symbol;
+            }
+            animationFrames.push(frame);
+        }
+        // Welle rückwärts (optional, oder einfach wieder von vorne)
+        // Für Einfachheit lassen wir es erstmal nur vorwärts laufen und wechseln dann das Symbol
+    }
+
+    generateFrames(); // Initiale Frames generieren
 
     let frameIndex = 0;
     let animationInterval;
-    const animationSpeed = 750; // Millisekunden pro Frame
+    const animationSpeed = 500; // Millisekunden pro Frame (von 750 auf 500 reduziert)
 
     function animateTitle() {
         document.title = animationFrames[frameIndex];
-        frameIndex = (frameIndex + 1) % animationFrames.length;
+        frameIndex++;
+        if (frameIndex >= animationFrames.length) {
+            frameIndex = 0;
+            currentSymbolIndex = (currentSymbolIndex + 1) % symbols.length; // Nächstes Symbol
+            generateFrames(); // Frames für neues Symbol generieren
+        }
     }
 
     function startAnimation() {

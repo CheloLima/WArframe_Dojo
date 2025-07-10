@@ -63,7 +63,11 @@ function createUser(PDO $pdo, string $discord_id, string $discord_username, ?str
         $stmt = $pdo->prepare($sql);
         $stmt->bindParam(':discord_id', $discord_id, PDO::PARAM_STR);
         $stmt->bindParam(':discord_username', $discord_username, PDO::PARAM_STR);
-        $stmt->bindParam(':discord_avatar_url', $discord_avatar_url, PDO::PARAM_STR_CHAR);
+        if ($discord_avatar_url === null) {
+            $stmt->bindValue(':discord_avatar_url', null, PDO::PARAM_NULL);
+        } else {
+            $stmt->bindParam(':discord_avatar_url', $discord_avatar_url, PDO::PARAM_STR);
+        }
         $stmt->bindParam(':isAdmin', $isAdmin, PDO::PARAM_BOOL);
         $stmt->bindParam(':custom_title_id', $custom_title_id, PDO::PARAM_INT);
         return $stmt->execute();
@@ -92,7 +96,11 @@ function updateUserDiscordDetails(PDO $pdo, string $discord_id, string $discord_
     try {
         $stmt = $pdo->prepare($sql);
         $stmt->bindParam(':discord_username', $discord_username, PDO::PARAM_STR);
-        $stmt->bindParam(':discord_avatar_url', $discord_avatar_url, PDO::PARAM_STR_CHAR);
+        if ($discord_avatar_url === null) {
+            $stmt->bindValue(':discord_avatar_url', null, PDO::PARAM_NULL);
+        } else {
+            $stmt->bindParam(':discord_avatar_url', $discord_avatar_url, PDO::PARAM_STR);
+        }
         $stmt->bindParam(':discord_id', $discord_id, PDO::PARAM_STR);
         return $stmt->execute();
     } catch (PDOException $e) {

@@ -153,6 +153,11 @@ if ($bot_status === "SUCCESS") {
     $_SESSION['isAdmin'] = (bool)$user['isAdmin'];
     $_SESSION['last_activity'] = time(); // Aktivität aktualisieren
 
+    // --- TEMPORÄRES DEBUGGING START ---
+    // Um das Debugging zu aktivieren, die folgende Zeile auskommentieren (die // entfernen):
+    // file_put_contents('debug_callback_user_session.log', "User data for session for {$user['discord_id']}: " . print_r($user, true) . PHP_EOL, FILE_APPEND);
+    // --- TEMPORÄRES DEBUGGING ENDE ---
+
     // State-Parameter auswerten für spezielle Weiterleitungen
     $final_redirect_url = '';
     if (isset($_GET['state'])) {
