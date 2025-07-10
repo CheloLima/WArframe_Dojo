@@ -158,9 +158,9 @@ if(isset($_GET['profile_updated']) && $_GET['profile_updated'] == '1' && !isset(
         </div>
         <?php if ($motd_data && !empty($motd_data['content'])): ?>
             <?php if (!empty($motd_data['title'])): ?>
-                <h3><?php echo htmlspecialchars($motd_data['title']); ?></h3>
+                <h3><?php echo htmlspecialchars($motd_data['title'] ?? ''); ?></h3>
             <?php endif; ?>
-            <p><?php echo nl2br(htmlspecialchars($motd_data['content'])); ?></p>
+            <div class="markdown-content"><?php echo parse_markdown_extended($motd_data['content'] ?? ''); ?></div>
             <p class="meta">
                 <em>
                     Veröffentlicht am <?php echo date("d.m.Y H:i", strtotime($motd_data['updated_at'])); ?>

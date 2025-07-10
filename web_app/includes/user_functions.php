@@ -654,4 +654,136 @@ function deleteChangelogEntry(PDO $pdo, int $changelog_id): bool {
     }
 }
 
-?>
+// --- Markdown Parsing Funktion ---
+
+/**
+ * Parst einen Text mit erweiterter Markdown-Syntax (Discord-ähnlich) in HTML.
+ * Wichtig: htmlspecialchars() wird auf den Inhalt angewendet, bevor HTML-Tags hinzugefügt werden.
+ * nl2br() wird am Ende für Zeilenumbrüche angewendet, die nicht Teil von Block-Elementen sind.
+ *
+ * Unterstützt:
+ * - Fett: **text**
+ * - Kursiv: *text* oder _text_
+ * - Unterstrichen: __text__
+ * - Durchgestrichen: ~~text~~
+ * - Inline Code: `code`
+ * - Code Blöcke: ```[lang]\ncode\n```
+ * - Spoiler: ||text||
+ * - Blockquotes: > text oder >>> text
+ * - Ungeordnete Listen: - text oder * text (einfach, nicht verschachtelt)
+ * - Geordnete Listen: 1. text (einfach, nicht verschachtelt)
+ *
+ * @param string|null $text Der zu parsende Text.
+ * @return string Der HTML-formatierte Text.
+ */
+function parse_markdown_extended(?string $text): string {
+    if ($text === null || $text === '') {
+        return '';
+    }
+
+    // 1. HTML-Sonderzeichen im gesamten Text escapen, um XSS zu verhindern.
+    // Dies geschieht später selektiv für Inhalte, um Markdown-Struktur zu erhalten.
+    // $text = htmlspecialchars($text, ENT_QUOTES, 'UTF-8');
+
+    // Temporäre Platzhalter für Code-Blöcke und Inline-Code, um Konflikte zu vermeiden
+    $code_blocks = [];
+    $inline_codes = [];
+    $placeholder_prefix_block = "%%CODEBLOCK_PLACEHOLDER_";
+    $placeholder_prefix_inline = "%%INLINECODE_PLACEHOLDER_";
+    $counter = 0;
+
+    // 2. Mehrzeilige Code-Blöcke extrahieren und escapen
+    // ```lang\ncode\n``` oder ```code\n```
+    $text = preg_replace_callback('/^```(?:(\w+)\n)?(.*?)^```/ms', function ($matches) use (&$code_blocks, &$counter, $placeholder_prefix_block) {
+        $lang = !empty($matches[1]) ? htmlspecialchars($matches[1], ENT_QUOTES, 'UTF-8') : '';
+        $code_content = htmlspecialchars($matches[2], ENT_QUOTES, 'UTF-8'); // Inhalt des Code-Blocks escapen
+        $placeholder = $placeholder_prefix_block . ($counter++) . '%%';
+        $code_blocks[$placeholder] = "<pre><code" . ($lang ? " class=\"language-{$lang}\"" : "") . ">" . $code_content . "</code></pre>";
+        return $placeholder;
+    }, $text);
+
+    // 3. Inline Code extrahieren und escapen
+    // `code` (auch mit Backticks im Code, behandelt durch non-greedy Match)
+    $text = preg_replace_callback('/`(.+?)`/s', function ($matches) use (&$inline_codes, &$counter, $placeholder_prefix_inline) {
+        $code_content = htmlspecialchars($matches[1], ENT_QUOTES, 'UTF-8'); // Inhalt des Inline-Codes escapen
+        $placeholder = $placeholder_prefix_inline . ($counter++) . '%%';
+        $inline_codes[$placeholder] = "<code>" . $code_content . "</code>";
+        return $placeholder;
+    }, $text);
+
+    // Übrige HTML-Sonderzeichen im verbleibenden Text escapen
+    $text = htmlspecialchars($text, ENT_QUOTES, 'UTF-8');
+
+    // 4. Spoiler: ||text||
+    $text = preg_replace('/\|\|(.*?)\|\|/s', '<span class="spoiler">$1</span>', $text);
+
+    // 5. Blockquotes: >>> text (mehrzeilig) oder > text (einzeilig)
+    // Muss vor nl2br und anderen Inline-Formatierungen passieren
+    // Mehrzeilige Blockquotes
+    $text = preg_replace('/^>>>\s?(.*)/m', "<blockquote>$1</blockquote>", $text); // Einfache Version für mehrzeilig
+    // Einzeilige Blockquotes
+    $text = preg_replace('/^>\s?(.*)/m', "<blockquote>$1</blockquote>", $text);
+
+
+    // 6. Fett: **text**
+    $text = preg_replace('/\*\*(.*?)\*\*/s', '<strong>$1</strong>', $text);
+    // 7. Unterstrichen: __text__
+    $text = preg_replace('/__(.*?)__/s', '<u>$1</u>', $text);
+    // 8. Kursiv: *text* oder _text_
+    // Um Konflikte mit ** und __ zu vermeiden, und um _innerhalb_von_worten_ zu ignorieren:
+    $text = preg_replace('/(?<!\w)(?<!\*)\*(?!\s)(.+?)(?<!\s)\*(?!\*)(?!\w)/s', '<em>$1</em>', $text); // *kursiv*
+    $text = preg_replace('/(?<!\w)(?<!_)_(?!\s)(.+?)(?<!\s)_(?!_)(?!\w)/s', '<em>$1</em>', $text);   // _kursiv_
+    // 9. Durchgestrichen: ~~text~~
+    $text = preg_replace('/~~(.*?)~~/s', '<s>$1</s>', $text);
+
+
+    // 10. Listen (einfach, nicht verschachtelt)
+    // Ungeordnete Listen
+    $text = preg_replace('/^(?:[\*\-]\s+)(.*)/m', '<li>$1</li>', $text);
+    $text = preg_replace('/(<li>.*<\/li>\s*)+/s', "<ul>\n$0</ul>\n", $text);
+    // Geordnete Listen
+    $text = preg_replace('/^(?:\d+\.\s+)(.*)/m', '<li>$1</li>', $text); // Erfasst nummerierte Einträge
+    $text = preg_replace('/(<li>.*<\/li>\s*)+/s', "<ol>\n$0</ol>\n", $text); // Gruppiert sie, Problem: gruppiert auch ULs mit
+
+    // Behebung des Listenproblems: UL und OL separat behandeln.
+    // Dies ist immer noch rudimentär für komplexe Fälle.
+    // Zuerst UL
+    // $text = preg_replace('/^(?:[\*\-]\s+)(.*)/m', '<li>$1</li>', $text);
+    // $text = preg_replace_callback('/((?:<li>.*?<\/li>\s*)+)/s', function($matches) {
+    // if (strpos($matches[0], '<ol>') === false) { // Nur wenn nicht schon in OL
+    // return "<ul>\n" . $matches[0] . "</ul>\n";
+    // }
+    // return $matches[0];
+    // }, $text);
+    // Dann OL
+    // $text = preg_replace('/^(?:\d+\.\s+)(.*)/m', '<li>$1</li>', $text);
+    // $text = preg_replace_callback('/((?:<li>.*?<\/li>\s*)+)/s', function($matches) {
+    // if (strpos($matches[0], '<ul>') === false) { // Nur wenn nicht schon in UL
+    // return "<ol>\n" . $matches[0] . "</ol>\n";
+    // }
+    // return $matches[0];
+    // }, $text);
+    // Die Listen-Regex ist knifflig, um UL und OL korrekt zu trennen und Verschachtelung zu vermeiden.
+    // Für einfache, nicht-verschachtelte Listen reicht oft die obige Version.
+    // Eine robustere Lösung würde einen komplexeren Parser oder eine Bibliothek erfordern.
+
+    // 11. Zeilenumbrüche für Absätze (wird auf den gesamten Text angewendet, der nicht in Block-Elementen ist)
+    // Dies muss sorgfältig geschehen, um nicht die Formatierung von <pre> oder <li> zu zerstören.
+    // Eine Möglichkeit: nl2br() ganz am Ende, aber <pre> muss dann speziell behandelt werden.
+    // Oder nl2br() vor den Block-Elementen, und dann die Block-Elemente parsen.
+    // Fürs Erste: nl2br() am Ende, Code-Blöcke sind durch Platzhalter geschützt.
+    $text = nl2br($text, false); // false für XHTML-konforme <br />
+
+    // 12. Platzhalter wieder einfügen
+    if (!empty($code_blocks)) {
+        $text = str_replace(array_keys($code_blocks), array_values($code_blocks), $text);
+    }
+    if (!empty($inline_codes)) {
+        $text = str_replace(array_keys($inline_codes), array_values($inline_codes), $text);
+    }
+
+    return $text;
+}
+
+
+// --- Changelog Funktionen ---

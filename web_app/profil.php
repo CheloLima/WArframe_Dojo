@@ -180,7 +180,7 @@ if (!empty($profile_user['discord_avatar_url'])) {
         <section class="profile-about">
             <?php if (!empty($profile_user['about_me'])): ?>
                 <h3>Über mich</h3>
-                <p><?php echo nl2br(htmlspecialchars($profile_user['about_me'])); ?></p>
+                <div class="markdown-content"><?php echo parse_markdown_extended($profile_user['about_me']); ?></div>
             <?php endif; ?>
 
             <?php if (!empty($syndicates)): ?>

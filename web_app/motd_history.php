@@ -53,8 +53,8 @@ if (!function_exists('parse_markdown_simple')) {
                 <?php if (!empty($motd['version'])): ?>
                     <p class="meta"><small>Version: <?php echo htmlspecialchars($motd['version'] ?? ''); ?></small></p>
                 <?php endif; ?>
-                <div class="motd-content">
-                    <?php echo parse_markdown_simple($motd['content'] ?? ''); // Content sollte jetzt immer da sein ?>
+                <div class="motd-content markdown-content">
+                    <?php echo parse_markdown_extended($motd['content'] ?? ''); ?>
                 </div>
                 <p class="meta">
                     <em>
@@ -81,8 +81,8 @@ if (!function_exists('parse_markdown_simple')) {
                 <h3>Version: <?php echo htmlspecialchars($entry['version_tag'] ?? 'N/A'); ?>
                     <span class="changelog-date"><small>(<?php echo date("d.m.Y", strtotime($entry['created_at'])); ?>)</small></span>
                 </h3>
-                <div class="changelog-summary">
-                    <?php echo parse_markdown_simple($entry['summary'] ?? ''); ?>
+                <div class="changelog-summary markdown-content">
+                    <?php echo parse_markdown_extended($entry['summary'] ?? ''); ?>
                 </div>
                 <p class="meta"><small>Eingetragen von: <?php echo htmlspecialchars($entry['author_username'] ?? 'Unbekannt'); ?></small></p>
             </article>

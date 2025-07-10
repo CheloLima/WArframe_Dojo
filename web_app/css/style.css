@@ -45,13 +45,14 @@ body {
     --color-background-medium: #1E1E1E; /* Etwas helleres Dunkelgrau für Karten, etc. */
     --color-background-medium-rgb: 30,30,30; /* RGB für Medium Background */
     --color-background-light: #2C2C2C;
+    --color-background-light-rgb: 44,44,44; /* RGB für Light Background */
     --color-text-primary: #E0E0E0;
     --button-text-light: #FFFFFF;
     --button-text-dark: #000000; /* Geändert zu reinem Schwarz für maximalen Kontrast */
     --button-current-text-color: var(--button-text-dark); /* Standardmäßig dunkler Text für helles Standard-Akzentgrün */
     --color-text-secondary: #B0B0B0;
     --color-border: #3A3A3A;
-    --color-border-glow: rgba(106, 255, 0, 0.3); /* Reduzierte Deckkraft für Border-Glow */
+    --color-border-glow: rgba(var(--color-primary-accent-rgb), 0.3); /* Dynamisch basierend auf Akzentfarbe */
     --color-error: #FF4C4C;
     --color-success: #4CAF50;
     --color-info: #2196F3;
@@ -810,6 +811,83 @@ html {
     scrollbar-width: thin; /* 'auto', 'thin', 'none' */
     scrollbar-color: var(--color-primary-accent) var(--color-background-medium); /* Daumen-Farbe Track-Farbe */
 }
+
+/* --- Markdown-spezifische Styles --- */
+.markdown-content p:last-child {
+    margin-bottom: 0; /* Kein unterer Abstand für den letzten Absatz im Markdown-Block */
+}
+.markdown-content ul, .markdown-content ol {
+    margin-bottom: 1em; /* Standardabstand für Listen */
+}
+/* Spoiler */
+.spoiler {
+    background-color: var(--color-text-secondary); /* Standardmäßig ausgeblendet */
+    color: var(--color-text-secondary); /* Text in gleicher Farbe wie Hintergrund */
+    padding: 0 0.3em;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+.spoiler:hover,
+.spoiler.revealed { /* Klasse .revealed kann per JS hinzugefügt werden, oder nur :hover */
+    background-color: rgba(var(--color-background-light-rgb, 44,44,44), 0.5); /* Hellerer Hintergrund bei Hover/Reveal */
+    color: var(--color-text-primary); /* Text wird sichtbar */
+}
+
+/* Blockquotes */
+blockquote {
+    border-left: 4px solid var(--color-border-glow);
+    padding-left: 1em;
+    margin-left: 0; /* Standard-Margin entfernen, falls vorhanden */
+    margin-bottom: 1em;
+    color: var(--color-text-secondary);
+    font-style: italic;
+}
+blockquote blockquote { /* Verschachtelte Blockquotes */
+    margin-left: 1em;
+    border-left-color: var(--color-secondary-accent); /* Andere Farbe für tiefere Ebenen */
+}
+
+/* Code-Blöcke */
+pre {
+    background-color: var(--color-background-medium);
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    padding: 1em;
+    overflow-x: auto; /* Horizontales Scrollen für lange Zeilen */
+    margin-bottom: 1em;
+    font-size: 0.9em; /* Etwas kleinerer Text für Code */
+}
+pre code { /* Innerhalb von pre */
+    background-color: transparent; /* Kein extra Hintergrund für Code in Pre */
+    padding: 0;
+    border-radius: 0;
+    border: none;
+    font-family: 'Courier New', Courier, monospace; /* Monospace-Schriftart */
+    color: var(--color-text-primary); /* Standard-Textfarbe für Code */
+}
+
+/* Inline Code */
+code { /* Für einzelne `code`-Tags außerhalb von <pre> */
+    background-color: var(--color-background-light);
+    padding: 0.2em 0.4em;
+    border-radius: 3px;
+    border: 1px solid var(--color-border);
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 0.9em;
+    color: var(--color-secondary-accent); /* Leicht hervorgehobene Farbe für Inline-Code */
+}
+
+/* Listen im Markdown-Content (bereits teilweise durch .content-section ul li in style.css abgedeckt) */
+.motd-content ul, .changelog-summary ul, .profile-about ul,
+.motd-content ol, .changelog-summary ol, .profile-about ol {
+    margin-left: 25px; /* Etwas mehr Einzug für geparste Listen */
+    padding-left: 0; /* Zurücksetzen, falls global anders */
+}
+.motd-content li, .changelog-summary li, .profile-about li {
+    margin-bottom: 0.4em;
+}
+
 
 /* --- Custom Checkbox Styling --- */
 /* Verstecke die Standard-Checkbox */
