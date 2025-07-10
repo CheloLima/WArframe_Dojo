@@ -78,12 +78,17 @@ if ($current_page !== 'logout.php') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo htmlspecialchars(defined('PAGE_TITLE') ? PAGE_TITLE . ' - ' . SITE_NAME : SITE_NAME); ?></title>
     <meta name="description" content="Community-Plattform für den Warframe Clan Endo Reserve Bank."> <!-- Angepasst -->
-    <!-- Favicon-Platzhalter - Ersetze dies durch deine eigenen Favicons -->
-    <link rel="icon" href="<?php echo BASE_URL; ?>/favicon.ico" sizes="any">
-    <link rel="icon" href="<?php echo BASE_URL; ?>/favicon.svg" type="image/svg+xml">
-    <link rel.apple-touch-icon" href="<?php echo BASE_URL; ?>/apple-touch-icon.png">
 
-    <link rel="stylesheet" href="<?php echo BASE_URL; ?>/css/style.css?v=<?php echo filemtime(__DIR__ . '/../css/style.css'); ?>">
+    <!-- Favicons -->
+    <link rel="icon" type="image/png" href="<?php echo rtrim(BASE_URL, '/'); ?>/assets/images/favicon/favicon-96x96.png" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="<?php echo rtrim(BASE_URL, '/'); ?>/assets/images/favicon/favicon.svg" />
+    <link rel="shortcut icon" href="<?php echo rtrim(BASE_URL, '/'); ?>/assets/images/favicon/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="<?php echo rtrim(BASE_URL, '/'); ?>/assets/images/favicon/apple-touch-icon.png" />
+    <link rel="manifest" href="<?php echo rtrim(BASE_URL, '/'); ?>/assets/images/favicon/site.webmanifest" />
+    <!-- Theme Color (optional, anpassbar an Akzentfarbe) -->
+    <meta name="theme-color" content="#6AFF00">
+
+    <link rel="stylesheet" href="<?php echo rtrim(BASE_URL, '/'); ?>/css/style.css?v=<?php echo filemtime(__DIR__ . '/../css/style.css'); ?>">
 
     <!-- Hier könnten später noch weitere globale JS-Dateien oder CSS-Frameworks eingebunden werden -->
     <!-- Beispiel: <script src="<?php echo BASE_URL; ?>/js/main.js" defer></script> -->

@@ -26,6 +26,7 @@
 
     <!-- Globale JavaScript-Dateien könnten hier geladen werden -->
     <script src="<?php echo defined('BASE_URL') ? rtrim(BASE_URL, '/') : '.'; ?>/js/theme-switcher.js?v=<?php echo file_exists(__DIR__ . '/../js/theme-switcher.js') ? filemtime(__DIR__ . '/../js/theme-switcher.js') : time(); ?>"></script>
+    <script src="<?php echo defined('BASE_URL') ? rtrim(BASE_URL, '/') : '.'; ?>/js/tab-animation.js?v=<?php echo file_exists(__DIR__ . '/../js/tab-animation.js') ? filemtime(__DIR__ . '/../js/tab-animation.js') : time(); ?>"></script>
     <!-- <script src="<?php echo defined('BASE_URL') ? rtrim(BASE_URL, '/') : '.'; ?>/js/main.js?v=<?php echo file_exists(__DIR__ . '/../js/main.js') ? filemtime(__DIR__ . '/../js/main.js') : time(); ?>"></script> -->
 </body>
 </html>
