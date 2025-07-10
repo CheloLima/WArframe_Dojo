@@ -25,15 +25,12 @@ if (defined('DISCORD_CLIENT_ID') && defined('DISCORD_REDIRECT_URI')) {
         'scope' => 'identify guilds.members.read',
     ];
 
-    // State-Parameter für zusätzliche Daten wie return_to nach Avatar-Resync
-    $state_parameters = [];
-    if (isset($_GET['action']) && $_GET['action'] === 'resync_avatar' && isset($_GET['return_to'])) {
-        $state_parameters['action'] = 'resync_avatar';
-        $state_parameters['return_to'] = basename(filter_var($_GET['return_to'], FILTER_SANITIZE_URL)); // Nur Dateiname
-    }
-    if (!empty($state_parameters)) {
-        $params['state'] = base64_encode(json_encode($state_parameters)); // State sicher kodieren
-    }
+    // State-Parameter Logik für resync_avatar hier nicht mehr nötig,
+    // da der Resync-Link direkt im Dashboard generiert wird.
+    // Ein allgemeiner State für CSRF-Schutz könnte hier implementiert werden, ist aber aktuell nicht im Scope.
+    // if (!empty($state_parameters)) {
+    //     $params['state'] = base64_encode(json_encode($state_parameters));
+    // }
 
     $discord_oauth_url = 'https://discord.com/api/oauth2/authorize?' . http_build_query($params);
 }

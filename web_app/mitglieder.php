@@ -50,20 +50,7 @@ $members = getAllUsersForList($pdo);
                     </div>
                     <div class="member-info">
                         <h4><?php echo htmlspecialchars($member['discord_username']); ?></h4>
-                        // } else {
-                        //    $default_avatar_path = __DIR__ . '/assets/images/default_avatar.png';
-                        //    if (file_exists($default_avatar_path)) {
-                        //        $avatar_url = BASE_URL . '/assets/images/default_avatar.png';
-                        //    } else {
-                        //        // Fallback zu einem generischen SVG oder leer lassen, damit CSS greift
-                        //        $avatar_url = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='50' height='50' viewBox='0 0 50 50'%3E%3Crect width='50' height='50' fill='%23333'/%3E%3Ctext x='50%25' y='50%25' fill='%23fff' text-anchor='middle' dy='.3em' font-size='20px'%3E?%3C/text%3E%3C/svg%3E";
-                        //    }
-                        // }
-                        ?>
-                        <img src="<?php echo $avatar_url; ?>" alt="Avatar von <?php echo htmlspecialchars($member['discord_username']); ?>" class="member-avatar">
-                    </div>
-                    <div class="member-info">
-                        <h4><?php echo htmlspecialchars($member['discord_username']); ?></h4>
+                        <?php // Der folgende fehlerhafte, duplizierte Block wurde entfernt ?>
                         <?php if (!empty($member['warframe_ign'])): ?>
                             <p class="ign">IGN: <?php echo htmlspecialchars($member['warframe_ign']); ?></p>
                         <?php else: ?>

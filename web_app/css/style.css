@@ -318,33 +318,35 @@ input[type="submit"]::before,
 form button:hover::before,
 input[type="submit"]:hover::before,
 .button:hover::before, .btn:hover::before {
-    transform: scale(2.2); /* Etwas größerer Glanz bei Hover */
+    transform: scale(2.2);
 }
-
 
 form button:hover,
 input[type="submit"]:hover,
 .button:hover, .btn:hover {
-    transform: translateY(-2px) scale(1.01); /* Weniger starker Hover-Effekt */
-    box-shadow: 0 3px 10px rgba(var(--color-primary-accent-rgb), 0.25), inset 0 1px 0 rgba(255,255,255,0.05); /* Reduzierter Hover-Schatten */
-    filter: brightness(1.05); /* Weniger Brightness */
+    transform: translateY(-2px) scale(1.01);
+    background: linear-gradient(to right, hsl(from var(--color-primary-accent) h s calc(l - 5%)), hsl(from var(--color-primary-accent) h s calc(l - 20%))); /* Hintergrund beim Hover abdunkeln */
+    box-shadow: 0 3px 8px rgba(var(--color-primary-accent-rgb), 0.20), inset 0 1px 0 rgba(255,255,255,0.05);
+    /* filter: brightness(1.05); -- Entfernt */
 }
 
 /* --- Buttons für andere Aktionen --- */
 .button-secondary, .btn-secondary {
-    background: linear-gradient(to right, var(--color-secondary-accent), hsl(from var(--color-secondary-accent) h s calc(l - 15%))); /* Verlauf angepasst */
-    color: var(--color-background-dark); /* Textfarbe konsistent mit primären Buttons */
+    background: linear-gradient(to right, var(--color-secondary-accent), hsl(from var(--color-secondary-accent) h s calc(l - 15%)));
+    color: var(--button-current-text-color); /* Behält dynamische Textfarbe basierend auf primärem Akzent */
 }
 .button-secondary:hover, .btn-secondary:hover {
-    box-shadow: 0 3px 10px rgba(var(--color-secondary-accent-rgb, 0, 191, 255), 0.25), inset 0 1px 0 rgba(255,255,255,0.05);
+    background: linear-gradient(to right, hsl(from var(--color-secondary-accent) h s calc(l - 5%)), hsl(from var(--color-secondary-accent) h s calc(l - 20%))); /* Hintergrund beim Hover abdunkeln */
+    box-shadow: 0 3px 8px rgba(var(--color-secondary-accent-rgb, 0, 191, 255), 0.20), inset 0 1px 0 rgba(255,255,255,0.05);
 }
 
 .button-danger, .btn-danger {
     background: linear-gradient(to right, var(--color-error), hsl(from var(--color-error) h s calc(l - 10%)));
-    color: var(--color-text-primary);
+    color: var(--button-text-light); /* Bleibt hell, da Hintergrund immer rot/dunkel ist */
 }
 .button-danger:hover, .btn-danger:hover {
-    box-shadow: 0 3px 10px rgba(255, 76, 76, 0.25), inset 0 1px 0 rgba(255,255,255,0.05);
+    background: linear-gradient(to right, hsl(from var(--color-error) h s calc(l - 5%)), hsl(from var(--color-error) h s calc(l - 15%))); /* Hintergrund beim Hover abdunkeln */
+    box-shadow: 0 3px 8px rgba(255, 76, 76, 0.20), inset 0 1px 0 rgba(255,255,255,0.05);
 }
 
 

@@ -86,6 +86,10 @@ $discord_username = $user_info_data['username'];
 $discord_avatar_hash = $user_info_data['avatar'];
 $discord_avatar_url = $discord_avatar_hash ? "https://cdn.discordapp.com/avatars/{$discord_id}/{$discord_avatar_hash}.png" : null;
 
+// --- TEMPORÄRES DEBUGGING START ---
+// Um das Debugging zu aktivieren, die folgende Zeile auskommentieren (die // entfernen):
+// file_put_contents('debug_callback_avatar.log', "User: {$discord_id} ({$discord_username}) - Avatar Hash: " . ($discord_avatar_hash ?? 'NULL') . " - Constructed URL: " . ($discord_avatar_url ?? 'NULL') . PHP_EOL, FILE_APPEND);
+// --- TEMPORÄRES DEBUGGING ENDE ---
 
 // 4. API des Python-Bots aufrufen, um den Status des Nutzers zu prüfen
 $bot_verify_url = rtrim(VERIFY_BOT_URL, '/') . '/' . $discord_id; // Stelle sicher, dass URL korrekt formatiert ist

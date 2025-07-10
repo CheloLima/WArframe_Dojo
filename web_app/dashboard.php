@@ -190,8 +190,28 @@ if(isset($_GET['profile_updated']) && $_GET['profile_updated'] == '1' && !isset(
 
                 <div class="form-group">
                     <label for="sync_discord_avatar" style="display: block; margin-bottom: 0.5em;">Discord-Avatar:</label>
-                    <a href="logout.php?action=resync_avatar&return_to=dashboard.php" class="button button-secondary btn-sm">Discord-Avatar neu laden/synchronisieren</a>
-                    <p class="form-hint"><small>Hinweis: Dies erfordert einen kurzen Logout und erneuten Login, um das aktuellste Discord-Profilbild zu laden.</small></p>
+                    <?php
+                    // Generiere die Discord OAuth URL für den Resync-Button
+                    $resync_oauth_url_dashboard = '';
+                    if (defined('DISCORD_CLIENT_ID') && defined('DISCORD_REDIRECT_URI')) {
+                        $state_params_resync_dash = [
+                            'action' => 'resync_avatar',
+                            'return_to' => 'dashboard.php' // Hartcodiert für diesen Button
+                        ];
+                        $oauth_params_resync_dash = [
+                            'client_id' => DISCORD_CLIENT_ID,
+                            'redirect_uri' => DISCORD_REDIRECT_URI,
+                            'response_type' => 'code',
+                            'scope' => 'identify guilds.members.read',
+                            'state' => base64_encode(json_encode($state_params_resync_dash)),
+                            // 'prompt' => 'consent' // Nützlich für Tests, um sicherzustellen, dass der Flow angestoßen wird.
+                                                    // Im Produktivbetrieb eher weglassen, damit es nahtlos ist, wenn möglich.
+                        ];
+                        $resync_oauth_url_dashboard = 'https://discord.com/api/oauth2/authorize?' . http_build_query($oauth_params_resync_dash);
+                    }
+                    ?>
+                    <a href="<?php echo htmlspecialchars($resync_oauth_url_dashboard); ?>" class="button button-secondary btn-sm">Discord-Avatar neu laden/synchronisieren</a>
+                    <p class="form-hint"><small>Hinweis: Dies erfordert eine erneute Autorisierung mit Discord, um das aktuellste Profilbild zu laden. Du bleibst dabei auf der Seite, bis Discord dich zurückleitet.</small></p>
                 </div>
             </fieldset>
 
