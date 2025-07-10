@@ -104,11 +104,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <div class="card">
     <div class="card-header">
-        <h2><?php echo empty($user['warframe_ign']) ? 'Profil vervollständigen' : 'Profil bearbeiten'; ?></h2>
+        <h2><?php echo empty($user['warframe_ign']) ? 'Tenno-Identität bestätigen' : 'Profil-Aktualisierung'; ?></h2> <!-- Angepasst -->
     </div>
 
-    <p>Hallo <?php echo htmlspecialchars($user['discord_username']); ?>! Bitte fülle die folgenden Felder aus, um dein Profil zu vervollständigen oder zu aktualisieren.</p>
-    <p>Der <strong>Warframe In-Game Name (IGN)</strong> ist erforderlich, damit wir dich im Spiel finden können.</p>
+    <p>Operator <?php echo htmlspecialchars($user['discord_username']); ?>, Eure Daten sind unvollständig oder bedürfen einer Aktualisierung. Bitte vervollständigt Euer Tenno-Profil.</p> <!-- Angepasst -->
+    <p>Euer <strong>Warframe In-Game Name (IGN)</strong> ist für die Systemidentifikation zwingend erforderlich.</p> <!-- Angepasst -->
 
     <?php if (!empty($errors['general'])): ?>
         <div class="message error"><?php echo htmlspecialchars($errors['general']); ?></div>

@@ -214,10 +214,10 @@ function getLatestPublishedMotd(PDO $pdo): ?array {
  * @return array
  */
 function getAllMotds(PDO $pdo): array {
-    $sql = "SELECT m.id, m.title, m.is_published, m.version, m.created_at, m.updated_at, u.discord_username as author_username
+    $sql = "SELECT m.id, m.title, m.content, m.is_published, m.version, m.created_at, m.updated_at, u.discord_username as author_username
             FROM motds m
             JOIN users u ON m.created_by_discord_id = u.discord_id
-            ORDER BY m.created_at DESC, m.id DESC";
+            ORDER BY m.created_at DESC, m.id DESC"; // m.content hinzugefügt
     $stmt = $pdo->query($sql);
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }

@@ -21,21 +21,10 @@ body {
     display: flex;
     flex-direction: column;
     min-height: 100vh;
-    /* Animierter Hintergrund */
-    background: linear-gradient(315deg,
-                                rgba(var(--color-primary-accent-rgb), 0.05),
-                                var(--color-background-dark) 25%,
-                                var(--color-background-medium) 75%,
-                                rgba(var(--color-secondary-accent-rgb), 0.05));
-    background-size: 400% 400%; /* Wichtig für die Animation des Gradienten */
-    animation: gradientAnimation 45s ease infinite;
+    background-color: var(--color-background-dark); /* Fallback, falls Partikel nicht laden */
 }
 
-@keyframes gradientAnimation {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
-}
+/* Keyframes für gradientAnimation entfernt, da der Hintergrund entfernt wird */
 
 
 .container {
@@ -794,4 +783,82 @@ table td a { /* Links in Tabellen hervorheben */
     margin-top: 0.8em;
     font-weight: bold;
     color: var(--color-text-secondary);
+}
+
+/* --- Custom Scrollbar Styling --- */
+/* Für Webkit-Browser (Chrome, Safari, Edge) */
+::-webkit-scrollbar {
+    width: 10px; /* Breite der vertikalen Scrollbar */
+    height: 10px; /* Höhe der horizontalen Scrollbar */
+}
+
+::-webkit-scrollbar-track {
+    background: var(--color-background-medium); /* Hintergrund der Scrollleiste */
+    border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: var(--color-primary-accent); /* Farbe des Scroll-Daumens */
+    border-radius: 5px;
+    border: 2px solid var(--color-background-medium); /* Rand um den Daumen für besseren Kontrast */
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background-color: hsl(from var(--color-primary-accent) h s calc(l - 10%)); /* Etwas dunkler beim Hover */
+}
+
+/* Für Firefox */
+/* Firefox unterstützt nur scrollbar-color und scrollbar-width */
+/* Muss auf html oder body angewendet werden, oder einem spezifischen scrollbaren Element */
+html {
+    scrollbar-width: thin; /* 'auto', 'thin', 'none' */
+    scrollbar-color: var(--color-primary-accent) var(--color-background-medium); /* Daumen-Farbe Track-Farbe */
+}
+
+/* --- Custom Checkbox Styling --- */
+/* Verstecke die Standard-Checkbox */
+input[type="checkbox"] {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--color-border-glow); /* Rand in Akzentfarbe (leicht gedimmt) */
+    border-radius: 3px;
+    background-color: var(--color-background-medium);
+    cursor: pointer;
+    position: relative;
+    vertical-align: middle; /* Bessere Ausrichtung mit Label-Text */
+    margin-right: 0.5em; /* Abstand zum Label */
+    outline: none;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+/* Style für den "checked" Zustand */
+input[type="checkbox"]:checked {
+    background-color: var(--color-primary-accent);
+    border-color: var(--color-primary-accent);
+}
+
+/* Erzeuge den Haken mit einem Pseudo-Element */
+input[type="checkbox"]:checked::before {
+    content: '';
+    position: absolute;
+    left: 5px;
+    top: 1px;
+    width: 6px;
+    height: 12px;
+    border: solid var(--button-current-text-color); /* Textfarbe des Hakens, passend zum Button-Text */
+    border-width: 0 3px 3px 0;
+    transform: rotate(45deg);
+}
+
+/* Hover-Effekt */
+input[type="checkbox"]:hover {
+    border-color: var(--color-primary-accent);
+}
+
+/* Fokus-Effekt (optional, für Barrierefreiheit) */
+input[type="checkbox"]:focus-visible {
+    box-shadow: 0 0 0 2px var(--color-background-dark), 0 0 0 4px var(--color-secondary-accent);
 }

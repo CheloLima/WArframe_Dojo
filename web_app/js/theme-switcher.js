@@ -36,19 +36,19 @@ document.addEventListener('DOMContentLoaded', () => {
         const luminance = getLuminance(hexColor);
         let buttonTextColorVar = 'var(--button-text-light)'; // Standardmäßig heller Text
 
-        if (luminance > 140) { // Wenn Akzentfarbe generell als hell eingestuft wird
+        // Neuer Schwellenwert, damit Grün, Cyan, Gelb hellen Text bekommen.
+        // Fast alle Farben bekommen nun hellen Text, außer extrem helle (die wir nicht haben).
+        if (luminance > 210) { // Nur wenn die Akzentfarbe EXTREM hell ist (z.B. fast weiß) -> dunkler Text
             buttonTextColorVar = 'var(--button-text-dark)';
-        }
-
-        // Spezifische Überschreibungen für bestimmte helle Farben, die trotzdem hellen Text benötigen könnten
-        // oder bei denen dunkler Text nicht gut aussieht (z.B. Grün, Cyan)
-        const problematicBrightColors = ['#6AFF00', '#00FFFF']; // Grün, Cyan
-        if (problematicBrightColors.includes(hexColor.toUpperCase())) {
+        } else { // Für alle anderen (inkl. Grün, Cyan, Gelb, Magenta, Violett, Rot) -> heller Text
             buttonTextColorVar = 'var(--button-text-light)';
         }
 
-        // Für Gold (#FFD700), Luminanz ~202, ist dunkler Text korrekt.
-        // Der allgemeine Check (luminance > 140) setzt es auf dark, was gut ist.
+        // Die spezifischen Überschreibungen sind nun nicht mehr nötig, wenn der Schwellenwert dies abdeckt.
+        // const problematicBrightColors = ['#6AFF00', '#00FFFF'];
+        // if (problematicBrightColors.includes(hexColor.toUpperCase())) {
+        //     buttonTextColorVar = 'var(--button-text-light)';
+        // }
 
         root.style.setProperty('--button-current-text-color', buttonTextColorVar);
 

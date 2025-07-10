@@ -45,7 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_motd'])) {
     $motd_title_form = trim($_POST['motd_title'] ?? '');
     $motd_content_form = trim($_POST['motd_content'] ?? '');
     $motd_is_published_form = isset($_POST['motd_is_published']) ? 1 : 0;
-    $motd_version_form = trim($_POST['motd_version'] ?? '');
+    // $motd_version_form = trim($_POST['motd_version'] ?? ''); // Entfernt
 
     if (empty($motd_content_form)) {
         $_SESSION['global_message'] = "MOTD Inhalt darf nicht leer sein.";
@@ -55,14 +55,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_motd'])) {
         $edit_motd_title = $motd_title_form;
         $edit_motd_content = $motd_content_form;
         $edit_motd_is_published = (bool)$motd_is_published_form;
-        $edit_motd_version = $motd_version_form;
+        // $edit_motd_version = $motd_version_form; // Entfernt
     } else {
         $data = [
             'title' => $motd_title_form,
             'content' => $motd_content_form,
             'created_by_discord_id' => $_SESSION['discord_id'], // Admin, der es speichert
             'is_published' => $motd_is_published_form,
-            'version' => $motd_version_form
+            'version' => null // Explizit null setzen oder aus $data entfernen
         ];
 
         $success = false;
@@ -279,10 +279,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_user_admin_sta
                     <label for="motd_content">Inhalt:</label>
                     <textarea name="motd_content" id="motd_content" rows="8" required><?php echo htmlspecialchars($edit_motd_content); ?></textarea>
                 </div>
-                <div class="form-group">
-                    <label for="motd_version">Version (Optional, z.B. Patchnummer):</label>
-                    <input type="text" name="motd_version" id="motd_version" value="<?php echo htmlspecialchars($edit_motd_version); ?>">
-                </div>
+                <!-- Version-Feld entfernt -->
                 <div class="form-group">
                     <input type="checkbox" name="motd_is_published" id="motd_is_published" value="1" <?php echo $edit_motd_is_published ? 'checked' : ''; ?>>
                     <label for="motd_is_published" style="display:inline; font-weight:normal;">Veröffentlicht (Sichtbar für User)</label>

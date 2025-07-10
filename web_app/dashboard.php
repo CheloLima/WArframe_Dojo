@@ -138,7 +138,7 @@ if(isset($_GET['profile_updated']) && $_GET['profile_updated'] == '1' && !isset(
 
 ?>
 
-<h1>Willkommen auf deinem Dashboard, <?php echo htmlspecialchars($user['discord_username']); ?>!</h1>
+<h1>Persönliches Terminal, Operator <?php echo htmlspecialchars($user['discord_username']); ?></h1> <!-- Angepasst -->
 
 <?php if (isset($_SESSION['global_message_type']) && $_SESSION['global_message_type'] === 'success' && isset($_GET['profile_updated'])): ?>
     <?php /* Die globale Nachricht wird bereits im header.php angezeigt. Hier nichts extra ausgeben, um Dopplung zu vermeiden. */ ?>
@@ -148,7 +148,7 @@ if(isset($_GET['profile_updated']) && $_GET['profile_updated'] == '1' && !isset(
 <div class="dashboard-grid">
     <section class="card motd-card">
         <div class="card-header">
-            <h2>Message of the Day (MOTD)</h2>
+            <h2>Systemnachricht (MOTD)</h2> <!-- Angepasst -->
         </div>
         <?php if ($motd_data && !empty($motd_data['content'])): ?>
             <?php if (!empty($motd_data['title'])): ?>

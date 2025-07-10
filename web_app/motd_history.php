@@ -17,11 +17,12 @@ $all_changelog_entries = getAllChangelogEntries($pdo); // Holt alle Changelog-Ei
 // Markdown-Parsing Funktion (einfach)
 if (!function_exists('parse_markdown_simple')) {
     function parse_markdown_simple($text) {
-        // Zeilenumbrüche
-        $text = nl2br(htmlspecialchars($text));
+        // Zeilenumbrüche zuerst, dann htmlspecialchars auf den ursprünglichen Text anwenden
+        $text_safe = htmlspecialchars($text ?? ''); // Stellt sicher, dass $text kein null ist
+        $text_nl2br = nl2br($text_safe);
         // Einfache Listen (ul/li) mit - oder *
-        $text = preg_replace('/^[-\*]\s+(.*)$/m', '<li>$1</li>', $text);
-        $text = preg_replace('/(<li>.*<\/li>\s*)+/s', '<ul>$0</ul>', $text);
+        $text_final = preg_replace('/^[-\*]\s+(.*)$/m', '<li>$1</li>', $text_nl2br);
+        $text_final = preg_replace('/(<li>.*<\/li>\s*)+/s', '<ul>>$0</ul>', $text_final); // Kleiner Fix für valides HTML bei Listen
         // Einfache Fettung mit **text**
         $text = preg_replace('/\*\*(.*?)\*\*/s', '<strong>$1</strong>', $text);
         // Einfache Kursivschrift mit *text* oder _text_ (vorsichtiger, um nicht mit Listen zu kollidieren)
@@ -44,20 +45,20 @@ if (!function_exists('parse_markdown_simple')) {
         <?php foreach ($all_motds as $motd): ?>
             <article class="motd-history-item <?php echo $motd['is_published'] ? 'published' : 'draft'; ?>">
                 <h3>
-                    <?php echo htmlspecialchars(!empty($motd['title']) ? $motd['title'] : 'MOTD vom ' . date("d.m.Y", strtotime($motd['created_at']))); ?>
+                    <?php echo htmlspecialchars(!empty($motd['title']) ? $motd['title'] : ('MOTD vom ' . date("d.m.Y", strtotime($motd['created_at'])))); ?>
                     <?php if (!$motd['is_published']): ?>
                         <span class="badge draft-badge">Entwurf</span>
                     <?php endif; ?>
                 </h3>
                 <?php if (!empty($motd['version'])): ?>
-                    <p class="meta"><small>Version: <?php echo htmlspecialchars($motd['version']); ?></small></p>
+                    <p class="meta"><small>Version: <?php echo htmlspecialchars($motd['version'] ?? ''); ?></small></p>
                 <?php endif; ?>
                 <div class="motd-content">
-                    <?php echo parse_markdown_simple($motd['content']); ?>
+                    <?php echo parse_markdown_simple($motd['content'] ?? ''); // Content sollte jetzt immer da sein ?>
                 </div>
                 <p class="meta">
                     <em>
-                        Erstellt von <?php echo htmlspecialchars($motd['author_username']); ?>
+                        Erstellt von <?php echo htmlspecialchars($motd['author_username'] ?? 'Unbekannt'); ?>
                         am <?php echo date("d.m.Y H:i", strtotime($motd['created_at'])); ?>
                         (Zuletzt aktualisiert: <?php echo date("d.m.Y H:i", strtotime($motd['updated_at'])); ?>)
                     </em>
@@ -77,13 +78,13 @@ if (!function_exists('parse_markdown_simple')) {
     <?php else: ?>
         <?php foreach ($all_changelog_entries as $entry): ?>
             <article class="changelog-item">
-                <h3>Version: <?php echo htmlspecialchars($entry['version_tag']); ?>
+                <h3>Version: <?php echo htmlspecialchars($entry['version_tag'] ?? 'N/A'); ?>
                     <span class="changelog-date"><small>(<?php echo date("d.m.Y", strtotime($entry['created_at'])); ?>)</small></span>
                 </h3>
                 <div class="changelog-summary">
-                    <?php echo parse_markdown_simple($entry['summary']); ?>
+                    <?php echo parse_markdown_simple($entry['summary'] ?? ''); ?>
                 </div>
-                <p class="meta"><small>Eingetragen von: <?php echo htmlspecialchars($entry['author_username'] ?? 'N/A'); ?></small></p>
+                <p class="meta"><small>Eingetragen von: <?php echo htmlspecialchars($entry['author_username'] ?? 'Unbekannt'); ?></small></p>
             </article>
             <hr class="changelog-divider">
         <?php endforeach; ?>

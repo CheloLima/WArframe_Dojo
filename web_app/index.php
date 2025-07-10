@@ -38,19 +38,19 @@ if (defined('DISCORD_CLIENT_ID') && defined('DISCORD_REDIRECT_URI')) {
 ?>
 
 <div class="hero-section">
-    <h1>Willkommen bei der Endo Reserve Bank!</h1> <!-- Angepasst -->
-    <p>Deine zentrale Anlaufstelle für alles rund um unseren Warframe Clan.</p>
+    <h1>Willkommen, Tenno, bei der Endo Reserve Bank!</h1> <!-- Angepasst -->
+    <p>Euer Datenknoten für alle Operationen und Ressourcen unseres glorreichen Warframe Clans.</p> <!-- Angepasst -->
     <?php if (!$is_logged_in && !empty($discord_oauth_url)): ?>
         <a href="<?php echo htmlspecialchars($discord_oauth_url); ?>" class="button btn-login">
             <img src="<?php echo BASE_URL; ?>/assets/images/discord_logo.svg" alt="Discord Logo" style="width: 24px; height: 24px; vertical-align: middle; margin-right: 8px;">
-            Login / Mitgliederbereich mit Discord
+            Autorisierung / Zugang zum Orbitersystem
         </a>
     <?php elseif (!$is_logged_in): ?>
-        <p class="message error">Discord Login ist derzeit nicht korrekt konfiguriert. Bitte informiere einen Administrator.</p>
+        <p class="message error">Systemfehler: Discord-Autorisierungsprotokoll nicht korrekt konfiguriert. Bitte einen Tech-Adepten informieren.</p> <!-- Angepasst -->
     <?php endif; ?>
     <?php if ($is_logged_in): ?>
-        <p>Willkommen zurück, <?php echo htmlspecialchars($_SESSION['discord_username']); ?>!</p>
-        <a href="<?php echo BASE_URL; ?>/dashboard.php" class="button">Zum Dashboard</a>
+        <p>Willkommen zurück im System, Operator <?php echo htmlspecialchars($_SESSION['discord_username']); ?>!</p> <!-- Angepasst -->
+        <a href="<?php echo BASE_URL; ?>/dashboard.php" class="button">Zum persönlichen Terminal (Dashboard)</a> <!-- Angepasst -->
     <?php endif; ?>
 </div>
 
@@ -72,10 +72,10 @@ if (defined('DISCORD_CLIENT_ID') && defined('DISCORD_REDIRECT_URI')) {
 </div>
 
 <div class="content-section">
-    <h2>Wie trete ich bei?</h2>
-    <p>Wenn du noch kein Mitglied unseres Discord-Servers bist, ist das der erste Schritt! Klicke auf den folgenden Link, um unserem Server beizutreten:</p>
-    <p><a href="https://discord.gg/chelo" target="_blank" class="button button-secondary">Tritt unserem Discord-Server bei!</a></p>
-    <p>Sobald du auf dem Server bist und die entsprechenden Rollen erhalten hast (normalerweise nach einer kurzen Vorstellung), kannst du dich hier mit deinem Discord-Account einloggen, um Zugriff auf den Mitgliederbereich zu erhalten.</p>
+    <h2>Rekrutierungsprotokoll</h2> <!-- Angepasst -->
+    <p>Tenno, die sich unserer Sache anschließen wollen, müssen zuerst eine Verbindung zu unserem primären Kommunikationsrelais (Discord-Server) herstellen. Dies ist Euer erster Schritt zur Aufnahme in die Endo Reserve Bank!</p> <!-- Angepasst -->
+    <p><a href="https://discord.gg/chelo" target="_blank" class="button button-secondary">Verbindung zum Comms-Relais herstellen!</a></p> <!-- Angepasst -->
+    <p>Sobald Eure Identität auf dem Relais verifiziert und die notwendigen Zugriffscodes (Rollen) erteilt wurden (üblicherweise nach einer kurzen Systemvorstellung), könnt Ihr Euch hier mit Eurem Discord-Identifikator authentifizieren, um vollen Zugriff auf die Systeme der Bank zu erhalten.</p> <!-- Angepasst -->
 </div>
 
 <?php
